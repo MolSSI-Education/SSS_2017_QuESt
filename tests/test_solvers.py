@@ -6,6 +6,7 @@ from quest import solvers
 import pytest
 import numpy as np
 import scipy
+import scipy.sparse.linalg
 
 def test_helper_PCG_direct():
 # Generate sample symmetric positive-definite matrix A and RHS vector b
@@ -21,7 +22,7 @@ def test_helper_PCG_direct():
     # Our implementation
     tol = 1e-14
     x0 = np.zeros(n)
-    M = np.ones_like(A)
+    M = np.diag(A)
     x1 = solvers.helper_PCG_direct(A, b, tol, max_iteration, x0, M)
     
     # Check our solution vs. numpy
@@ -34,7 +35,9 @@ def test_helper_PCG():
     n = 100
     A = np.random.normal(size=[n, n])
     A = np.dot(A.T, A)
-    hess_A = scipy.sparse.linalg.aslinearoperator(A)
+
+    def hess_A(x):
+        return np.dot(A, x)
 
     b = np.ones(n)
     max_iteration = 2 * n
@@ -45,7 +48,8 @@ def test_helper_PCG():
     # Our implementation
     tol = 1e-14
     x0 = np.zeros(n)
-    M = np.ones_like(A)
+    # M = np.diag(A)
+    M = np.ones((A.shape[0]))
     x1 = solvers.helper_PCG(hess_A, b, tol, max_iteration, x0, M)
     
     # Check our solution vs. numpy

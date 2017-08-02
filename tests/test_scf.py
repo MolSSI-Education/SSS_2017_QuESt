@@ -9,7 +9,7 @@ import psi4
 
 def test_scf():
 
-    for mol_str in quest.mollib:
+    for _, mol_str in quest.mollib.items():
         basis = 'sto-3g'
 
         molecule = quest.Molecule(mol_str, basis)

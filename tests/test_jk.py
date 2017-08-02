@@ -12,7 +12,7 @@ psi4.set_output_file("output.dat", True)
 
 
 def test_PKJK():
-    for mol_str in quest.mollib:
+    for _, mol_str in quest.mollib.items():
         molecule = psi4.geometry(mol_str)
 
         basis = psi4.core.BasisSet.build(molecule, "ORBITAL", "STO-3G")

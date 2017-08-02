@@ -19,17 +19,17 @@ def tail_correction(box_length):
     e_correction *= 8.0 / 9.0 * np.pi * num_particles**2 / volume
     return e_correction
 
-def monte_carlo(sigma, epsilon, coord_file, parameters):
+def monte_carlo(sigma, epsilon, coord_file,box_length, num_steps, tolerance_acce_rate, max_displacement_scaling, num_accept, num_trials):
     #coordinates_NIST = np.loadtxt("lj_sample_config_periodic1.txt", skiprows=2, use cols=(1, 2, 3)) 
     #coord_file ="/home/yohanna/Gits/SSS_2017_QuESt/quest/lj_sample_config_periodic1.txt"
-    box_length = parameters['mm']['box_size']
-    num_steps = parameters['mm']['num_steps']
-    tolerance_acce_rate = parameters['mm']['acc_rate']
-    max_displacement_scaling = parameters['mm']['max_displacement']
+#    box_length = parameters['mm']['box_size']
+#    num_steps = parameters['mm']['num_steps']
+#    tolerance_acce_rate = parameters['mm']['acc_rate']
+#    max_displacement_scaling = parameters['mm']['max_displacement']
     coordinates_NIST = np.loadtxt(coord_file, skiprows=2, usecols=(1, 2, 3))        
     num_particles = len(coordinates_NIST)    
-    num_accept = 0
-    num_trials = 0
+#    num_accept = 0
+#    num_trials = 0
 
     for i_step in range(num_steps):
         num_trials += 1

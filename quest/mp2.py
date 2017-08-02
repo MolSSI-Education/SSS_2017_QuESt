@@ -8,6 +8,7 @@ fitted MP2 energies respectively.
 
 """
 import numpy as np
+import psi4
 
 
 def mp2(wavefunction):
@@ -38,8 +39,8 @@ def mp2(wavefunction):
     mp2_cor_e = _compute_conv_e(g_mo, D)
     scf_e = wavefunction.energies['scf_energy']
     mp2_total_e = scf_e + mp2_cor_e
-    wavefunction.energies['mp2_correlation_e'] = mp2_cor_e
-    wavefunction.energies['mp2_e'] = mp2_total_e
+    wavefunction.energies['mp2_correlation_energy'] = mp2_cor_e
+    wavefunction.energies['mp2_energy'] = mp2_total_e
     return mp2_total_e
 
 
@@ -60,17 +61,29 @@ def df_mp2(wavefunction):
         On return this will be the input `wavefunction` with MP2 energy
         quantities added to the `wavefunction.energies` dictionary.
     """
-    nocc = wavefunction.nocc
     orbital_energies = wavefunction.arrays['eps']
+    nocc = int(wavefunction.options['nel'] / 2)
+    C = np.asarray(wavefunction.arrays['C'])
+    nvirt = C.shape[0] - nocc
     occ_orbital_energies = orbital_energies[:nocc]
     vir_orbital_energies = orbital_energies[nocc:]
-    # TODO: How should I get this?
-    DF_3index = None
-    mp2_cor_e = _compute_DF_e(occ_orbital_energies, vir_orbital_eergies, DF_3index)
-    scf_e = wavefunction.energies['scf_e']
+
+    # get the ao basis set from the wavefunction's mints helper
+    ao = wavefunction.mints.basisset()
+    # build an aux basis object
+    aux = psi4.core.BasisSet.build(ao.molecule(), "DF_BASIS_MP2", "", "RIFIT",
+                                   ao.name())
+    df = psi4.core.DFTensor(ao, aux, psi4.core.Matrix.from_array(C),
+            nocc, nvirt)
+
+    DF_3index = np.asarray(df.Qov())
+
+    mp2_cor_e = _compute_DF_e(occ_orbital_energies, vir_orbital_energies,
+                              DF_3index)
+    scf_e = wavefunction.energies['scf_energy']
     mp2_total_e = mp2_cor_e + scf_e
-    wavefunction.energies['mp2_correlation_e'] = mp2_cor_e
-    wavefunction.energies['mp2_e'] = mp2_total_e
+    wavefunction.energies['mp2_correlation_energy'] = mp2_cor_e
+    wavefunction.energies['mp2_energy'] = mp2_total_e
     return mp2_total_e
 
 
@@ -164,10 +177,10 @@ def _compute_DF_e(eps_occ, eps_vir, Qov):
     MP2corr_OS = 0.0
     MP2corr_SS = 0.0
 
-    for i in range(nocc):
+    for i in range(eps_occ.shape[0]):
         eps_i = eps_occ[i]
         i_Qv = Qov[:, i, :].copy()
-        for j in range(i, nocc):
+        for j in range(i, eps_occ.shape[0]):
             eps_j = eps_occ[j]
             j_Qv = Qov[:, j, :]
             tmp = np.dot(i_Qv.T, j_Qv)

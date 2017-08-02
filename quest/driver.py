@@ -6,7 +6,14 @@ from . import mp2
 from . import scf_module
 from . import molecule
 from . import wavefunction
+from . import lj
 from .response import response
+
+
+def compute_lj_params(mol_str, basis_name):
+    mol = molecule.Molecule(mol_str, basis_name)
+    sigma, A, B, energy, distance = lj.build_lj_params(mol, True)
+    return sigma, A, B, energy, distance
 
 
 def compute_scf_response(wavefunction):

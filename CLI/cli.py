@@ -57,3 +57,7 @@ if args.qm:
 
     mp2_energy = driver.compute_mp2(wfn)
     print('Total MP2 energy: %.5f' % mp2_energy)
+
+if args.mm:
+    sigma, A, B, energy, distance = driver.compute_lj_params(mollib[args.molecule], qmp['basis_name'])
+    print('Sigma: %.2f' % sigma)

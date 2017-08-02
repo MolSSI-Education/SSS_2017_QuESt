@@ -2,10 +2,10 @@ qm:
   basis_name: 'sto-3g'
   maxiter: 25
   density_fitting: False
-  diis: False
+  diis: True
   max_diis: 6
-  D_conv: 1.0e-04
-  E_conv: 1.0e-06
+  d_conv: 1.0e-04
+  e_conv: 1.0e-06
   numpy_memory: 1.0e+09
 mm:
   num_particles: 800

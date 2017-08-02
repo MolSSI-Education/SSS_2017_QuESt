@@ -42,7 +42,7 @@ def E_kappa_MO(F, g, nocc, nbas):
         return Fiakappa
         shape=((nbas-nocc) * nocc, (nbas-nocc) * nocc)
         matvec = return_func_pointer
-    return (spla.LinearOperator(shape, matvec)
+    return (spla.LinearOperator(shape, matvec))
 
 def E_kappa_AO(F, g, C, get_JK, nocc, nbas):
     """

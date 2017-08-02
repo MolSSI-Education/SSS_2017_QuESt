@@ -117,7 +117,8 @@ if __name__ == "__main__":
             'numpy>=1.7',
             'pytest>=3.0',
             'pytest-cov',
-            'pyyaml'
+            'pyyaml',
+            'matplotlib',
         ],
         extras_require={
             'docs': [

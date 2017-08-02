@@ -125,3 +125,6 @@ Makefile
 # Random Testing
 test.py
 
+psi_output.out
+# ipython files
+*.ipynb

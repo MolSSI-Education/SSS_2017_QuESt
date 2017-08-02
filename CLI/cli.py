@@ -4,8 +4,10 @@ QuESt command line interface.
 import os
 import argparse
 import yaml
-from .molecule import Molecule
-# from . import driver
+import quest
+import quest.driver as driver
+from quest.molecule import Molecule
+from quest.mollib import mollib
 
 
 parser = argparse.ArgumentParser(
@@ -26,10 +28,10 @@ QuESt: Quantum Energy and Stuff
     """,
     formatter_class=argparse.RawDescriptionHelpFormatter)
 
-default_params = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'default_params.yml')
+default_params = quest.default_params
 
-parser.add_argument('--molecule', '-m', type=str, default='tests/water', metavar='',
-                    help='Molecule file name (default: water)')
+parser.add_argument('--molecule', '-m', type=str, default='h2o', metavar='',
+                    help='Molecule file name (default: h2o)')
 parser.add_argument('--parameters', '-p', type=str, default=default_params, metavar='',
                     help='Parameters file (default: parameters.yml)')
 parser.add_argument('-qm', action='store_true', default=True,
@@ -40,18 +42,15 @@ parser.add_argument('-mm', action='store_true', default=True,
 # Parse arguments
 args = parser.parse_args()
 
-# Read the molecule files
-with open(args.molecule, "r") as mf:
-    mol_lines = mf.readlines()
-
 # Read parameters
 with open(args.parameters, 'r') as inp_file:
     params = yaml.load(inp_file)
 
-# Create molecule object, assign basis set and name
-# mol = Molecule(mol="".join(mol_lines), bas=params['qm']['basis_set'])
-# mol.name = os.path.splitext(os.path.basename(args.molecule))[0]
-# mol.print_out()
-
-# driver.compute_mp2(molecule, "aug-cc-pvdz")
-
+if args.qm:
+    qmp = params['qm']
+    driver.compute_rhf(mollib[args.molecule],
+                       basis_name=qmp['basis_name'],
+                       numpy_memory=qmp['numpy_memory'],
+                       maxiter=qmp['maxiter'],
+                       E_conv=qmp['E_conv'],
+                       D_conv=qmp['D_conv'])

@@ -6,13 +6,9 @@ import quest
 import pytest
 import psi4
 import numpy as np
-# import Molecule
 
-mol = psi4.geometry("""
-O
-H 1 1.1
-H 1 1.1 2 104
-""")
 
-def test_mp2():
-    pass
+def test_molecule():
+    testmol = quest.molecule.Molecule(quest.mollib["h2o"], "sto-3g")
+    assert testmol.nel == 10
+

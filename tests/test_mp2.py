@@ -1,50 +1,24 @@
 """
-This file tests the MP2 in the quest.
+This file tests MP2
 """
 
 import quest
 import pytest
 import psi4
 import numpy as np
-from quest import mp2
-
-psi4.set_output_file("output.dat", True)
-geometry = ["""
-       O
-       H 1 1.1
-       H 1 1.1 2 104
-       symmetry c1
-       """,
-       """
-           O
-       H 1 1.3
-       H 1 1.3 2 104
-       symmetry c1
-       """]
-
-# geometry = ["""
-#         O
-#         H 1 1.1
-#         H 1 1.1 2 104
-#         symmetry c1
-#         """]
-basis_set = ["sto-3g"]
-#basis2 = "aug-cc-pvdz"
-
-@pytest.mark.parametrize("geometry", geometry)
-@pytest.mark.parametrize("basis_set", basis_set)
-def test_mp2(geometry, basis_set):
-    mol = psi4.geometry(geometry)
-    mp2_e = mp2.mp2(mol, basis_set)
-    psi4.energy('MP2')
-    result = psi4.compare_values(psi4.core.get_variable('MP2 TOTAL ENERGY'), mp2_e, 6, 'MP2 Energy')
-    assert result == True
 
 
+def test_mp2():
+    mol_str = quest.mollib["h2o"]
+    basis = "sto-3g"
 
+    molecule = quest.Molecule(mol_str, basis)
+    wfn = quest.Wavefunction(molecule, {})
 
-#    @pytest.mark.parametrize("geometry,basis, expected",[(geometry1, basis1, True),
-                                                     #    (geometry2, basis1, True),
-                                                         #(geometry1, basis2, True)])
-   # pytest.mark.parametrize("geometry,basis, expected",[(geometry[i], basis[i], True)]
+    scf_energy = quest.scf_module.compute_rhf(wfn, df=False, diis=False)
+    mp2_energy = quest.mp2.mp2(wfn)
 
+    psi4.set_options({"scf_type": "pk", "mp2_type":"conv"})
+    ref_energy = psi4.energy("MP2" + "/" + basis, molecule=molecule.mol)
+
+    assert np.allclose(mp2_energy, ref_energy)

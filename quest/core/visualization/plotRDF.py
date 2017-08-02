@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 from matplotlib import animation as ani
 
 """
-Plots the rdf plot
+Plot the RDF plot
 """
 def plot_rdf(r_domain, gr, r_max, gr_max):
     

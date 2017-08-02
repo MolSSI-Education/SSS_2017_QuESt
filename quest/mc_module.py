@@ -19,9 +19,11 @@ def tail_correction(box_length):
     e_correction *= 8.0 / 9.0 * np.pi * num_particles**2 / volume
     return e_correction
 
-def monte_carlo(epsilon = lj_fitting(molecule), num_particles, box_length, num_steps, max_displacement_scaling, tolerance_acce_rate):
-	coordinates_NIST = np.loadtxt("lj_sample_config_periodic1.txt", skiprows=2, use cols=(1, 2, 3)) 
-	
+def monte_carlo(epsilon, coord_file_path, box_length, num_steps, tolerance_acce_rate, max_displacement_scaling):
+	#coordinates_NIST = np.loadtxt("lj_sample_config_periodic1.txt", skiprows=2, use cols=(1, 2, 3)) 
+
+        coordinates_NIST = np.loadtxt(coord_file_path, skiprows=2, use cols=(1, 2, 3))		
+	num_particles = len(coordinates_NIST)	
 	num_accept = 0
 	num_trials = 0
 
@@ -57,10 +59,10 @@ def monte_carlo(epsilon = lj_fitting(molecule), num_particles, box_length, num_s
              acc_rate = float(num_accept) / float(num_steps)
              num_accept = 0
              num_trials = 0
-             if acc_rate < 0.38:
-                 max_displacement *= 0.8
-             elif acc_rate > 0.42:
-                 max_displacement *= 1.2
+             if acc_rate < tolerance_acce_rate[0]:
+                 max_displacement *= max_displacement_scaling[0]
+             elif acc_rate > tolerance_acce_rate[1], :
+                 max_displacement *= max_displacement_scaling[1]
          total_energy = (total_pair_energy * epsilon + tail_correction) / num_particles
          energy_array[i_step] = total_energy
          print (total_energy*num_particles)	

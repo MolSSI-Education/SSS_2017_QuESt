@@ -136,7 +136,7 @@ def _compute_conv_e(g_iajb, e_denom):
     # print(g_iajb.shape, g_iajb.shape, e_denom.shape)
     ss = np.einsum("iajb,iajb,iajb->", (g_iajb - g_ibja), g_iajb, e_denom)
     # opposite spin, same spin
-    E_mp2 = os - ss
+    E_mp2 = os + ss
     return E_mp2
 
 

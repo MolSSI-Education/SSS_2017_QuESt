@@ -59,3 +59,34 @@ def plot_rdf(r_domain, gr, r_max, gr_max):
     ax.text(r_max + .05, gr_max, 'Local max', fontsize=20)
     plt.show()
 
+
+def plot_LJ(fnam, mol):
+    """
+    Plotting function to accompany lj_fit()
+
+   ----------
+    fnam: name of file to save plot
+    mol: psi4.core.Molecule object
+    ----------
+
+   """
+
+   coeffs = np.zeros(2)
+    sig, coeffs[0], coeffs[1], es, ds, = lj.build_lj_params(mol, True)
+
+   powers = [-12, -6]
+    x = np.power(np.array(ds).reshape(-1, 1), powers)
+
+   # Build list of points
+    fpoints = np.linspace(2, 7, 50).reshape(-1, 1)
+    fdata = np.power(fpoints, powers)
+
+   fit_energies = np.dot(fdata, coeffs)
+
+   plt.xlim((2, 7))  # X limits
+    plt.ylim((-7, 2))  # Y limits
+    plt.scatter(ds, es)  # Scatter plot of the distances/energies
+    plt.plot(fpoints, fit_energies)  # Fit data
+    plt.plot([0,10], [0,0], 'k-')  # Make a line at 0
+    #plt.savefig(fnam)
+    plt.show()

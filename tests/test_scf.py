@@ -7,30 +7,31 @@ import pytest
 import numpy as np
 import psi4
 
-def test_scf():
 
-    for _, mol_str in quest.mollib.items():
-        basis = 'sto-3g'
+@pytest.mark.parametrize("mol_str", ["h2o", "co", "co2"])
+def test_scf(mol_str):
 
-        molecule = quest.Molecule(mol_str, basis)
-        rhf_options = \
-        {
-            'e_conv': 1.e-8,
-            'd_conv': 1.e-8,
-            'diis': True,
-            'max_diis': 7,
-            'max_iter': 100,
-        }
+    basis = 'sto-3g'
 
-        wfn = quest.Wavefunction(molecule, rhf_options)
+    molecule = quest.Molecule(quest.mollib[mol_str], basis)
+    rhf_options = \
+    {
+        'e_conv': 1.e-8,
+        'd_conv': 1.e-8,
+        'diis': True,
+        'max_diis': 7,
+        'max_iter': 100,
+    }
 
-        # Compute RHF
-        scf_energy = quest.scf_module.compute_rhf(wfn)
+    wfn = quest.Wavefunction(molecule, rhf_options)
 
-        psi4.set_options({"scf_type": "pk"})
-        ref_energy = psi4.energy("SCF" + "/" + basis, molecule=molecule.mol)
+    # Compute RHF
+    scf_energy = quest.scf_module.compute_rhf(wfn)
 
-        assert np.allclose(ref_energy, scf_energy)
+    psi4.set_options({"scf_type": "pk"})
+    ref_energy = psi4.energy("SCF" + "/" + basis, molecule=molecule.mol)
+
+    assert np.allclose(ref_energy, scf_energy)
 
 
 def test_scf_driver():

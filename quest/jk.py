@@ -80,13 +80,29 @@ class PKJK(object):
 
 class DFJK(object):
     """
-    Constructs a "DF" JK object. This forms J and K using density-fitting.
+    Constructs a "DF" JK object. This uses density-fitting to accelerate the construction
+    of J and K matrices.
+
+    kai_P = I_Prs D_rs
+    J_pq[D_rs] = I_Ppq kai_P
+
+    zeta_Pqs = I_Pqs D_s
+    K_pq[D_rs] = I_Ppr zeta_Pqr
+
     """
 
     def __init__(self, mints, bas, mol, basname):
         """
-        Initialized the JK object from a MintsHelper object.
-        Prepare the auxiliary integrals.
+        Initialized the JK object from a MintsHelper object and prepare the 
+        auxiliary integrals:
+        
+        Parameters
+        ----------
+        mints     : psi4.core.MintsHelper
+        bas       : basis set object
+        mol       : molecule object
+        basname   : string of the basis set name
+        
         """
         self.nbf = mints.nbf()
         self.I = np.asarray(mints.ao_eri())

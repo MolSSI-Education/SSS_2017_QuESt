@@ -8,7 +8,6 @@ from . import jk
 from . import solvers
 from . import core
 from . import mp2
-from . import plots
 from . import lj
 from . import driver
 

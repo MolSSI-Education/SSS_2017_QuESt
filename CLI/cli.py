@@ -5,6 +5,7 @@ import os
 import argparse
 import yaml
 import quest
+import quest.driver as driver
 from quest.molecule import Molecule
 from quest.mollib import mollib
 
@@ -45,8 +46,11 @@ args = parser.parse_args()
 with open(args.parameters, 'r') as inp_file:
     params = yaml.load(inp_file)
 
-# Create molecule object and assign basis set
-mol = Molecule(mol=mollib[args.molecule], bas=params['qm']['basis_set'])
-mol.mol.print_out()
-
-# driver.compute_mp2(molecule, "aug-cc-pvdz")
+if args.qm:
+    qmp = params['qm']
+    driver.compute_rhf(mollib[args.molecule],
+                       basis_name=qmp['basis_name'],
+                       numpy_memory=qmp['numpy_memory'],
+                       maxiter=qmp['maxiter'],
+                       E_conv=qmp['E_conv'],
+                       D_conv=qmp['D_conv'])

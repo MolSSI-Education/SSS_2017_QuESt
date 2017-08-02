@@ -47,9 +47,11 @@ def build_lj_params(mol, returnAll=False):
         #new_mol.set_geometry(mol_geom)
         #new_mol.set_basis(mol.bas_name)
         # call MP2 on molecule and get energy
+        
         energy, wfn = driver.compute_rhf(mol_geom, mol.bas_name)
+        energy_mp2 = driver.compute_mp2(wfn)
         # add MP2 energy to energies list
-        energies[i] = energy
+        energies[i] = energy_mp2
     # doing the fit
     A,B = fit_lj(distances, energies)
     # calculate sigma

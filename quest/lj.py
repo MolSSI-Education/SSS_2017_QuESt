@@ -1,16 +1,13 @@
 import numpy as np
 import psi4
+from . import driver
 from . import molecule
-from . import wavefunction as wfn
-from . import scf_module
-from . import mp2
 
-
-# Builds the Lennard-Jones coefficients/parameters/potential.
-# Params:
-#  atom - Input molecule (should be one atom)
-#  returnAll - Returns coefficients and energies/distances in addition to sigma if True
-# Returns:
+"""
+This module takes a quest Molecule object and returns 
+the Lennard-Jones potential parameters (sigma, A, B) 
+"""
+ 
 def build_lj_params(mol, returnAll=False):
     """
     Builds the Lennard-Jones coefficients/parameters/potential.
@@ -47,15 +44,12 @@ def build_lj_params(mol, returnAll=False):
     for i, distance in enumerate(distances):
         # construct molecule w/ correct distance
         mol_geom = geom_string.format(atom_str, atom_str, distance)
-        new_mol.set_geometry(mol_geom)
-        new_mol.set_basis(mol.bas_name)
+        #new_mol.set_geometry(mol_geom)
+        #new_mol.set_basis(mol.bas_name)
         # call MP2 on molecule and get energy
-        ref_wfn = wfn.Wavefunction(new_mol)
-        scf.RHF(new_mol, new_mol.bas_name)
-        rhf.compute_energy()
-        mp2_wfn = mp2(ref_wfn)
+        energy, wfn = driver.compute_rhf(mol_geom, mol.bas_name)
         # add MP2 energy to energies list
-        energies[i] = mp2_wfn['mp2_energy']
+        energies[i] = energy
     # doing the fit
     A,B = fit_lj(distances, energies)
     # calculate sigma

@@ -16,4 +16,4 @@ def test_get_lj_params():
     test = quest.molecule.Molecule(mol_psi, "aug-cc-pvdz")
     s, a, b, e, d = quest.lj.build_lj_params(test, True)
     print(s)
-    assert abs(s - 2.8) <= 0.9
+    assert abs(s - 2.8) <= 0.85

@@ -31,8 +31,8 @@ def build_lj_params(mol, returnAll=False):
     """
     # set up distances for PES
     start = 2.0
-    stop = 10.0
-    step = 0.75
+    stop = 7.0
+    step = 0.5
     distances = np.arange(start, stop, step)
     energies = np.zeros(distances.size)
     # set up geometry stuff -- make new geom object to avoid overwriting the old one
@@ -66,7 +66,7 @@ def build_lj_params(mol, returnAll=False):
 def fit_lj(distances, energies):
     """
     Takes a list of distances and corresponding energies 
-    perform a list squares fitting and 
+    perform a least squares fitting and 
     returns coefficients A for the r^12 term and B for the r^6 term
 
     Parameters

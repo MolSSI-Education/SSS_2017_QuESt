@@ -28,7 +28,19 @@ def mp2(wavefunction):
         quantities added to the `wavefunction.energies` dictionary.
 
     """
-    pass
+    g_ao = np.asarray(wavefunction.mints.ao_eri())
+    orbital_energies = np.asarray(wavefunction.arrays['eps'])
+    C = np.asarray(wavefunction.arrays['C'])
+    num_occ_orbs = wavefunction.nel
+    g_mo = _mo_transform(g_ao, C, num_occ_orbs)
+    D = _denom(orbital_energies, num_occ_orbs)
+
+    mp2_cor_e = _compute_conv_e(g_mo, D)
+    scf_e = wavefunction.energies['scf_e']
+    mp2_total_e = scf_e + mp2_cor_e
+    wavefunction.energies['mp2_correlation_e'] = mp2_cor_e
+    wavefunction.energies['mp2_e'] = mp2_total_e
+    return mp2_total_e, wavefunction
 
 
 def df_mp2(wavefunction):

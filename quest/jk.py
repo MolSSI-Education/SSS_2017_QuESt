@@ -91,7 +91,7 @@ class DFJK(object):
         self.nbf = mints.nbf()
         self.I = np.asarray(mints.ao_eri())        
         # Build the complementary JKFIT basis for the aug-cc-pVDZ basis (for example)
-        aux = psi4.core.BasisSet.build(mol, fitrole="JKFIT", other="aug-cc-pVDZ")
+        aux = psi4.core.BasisSet.build(mol, fitrole="JKFIT", other=basname)
         # The zero basis set
         zero_bas = psi4.core.BasisSet.zero_ao_basis_set()
         # Build instance of MintsHelper

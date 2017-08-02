@@ -6,6 +6,7 @@ import quest
 import pytest
 import psi4
 import numpy as np
+import jk
 
 psi4.set_output_file("output.dat", True)
 
@@ -28,6 +29,6 @@ H 1 1.1 2 104
     J_ref = np.einsum("pqrs,rs->pq", I, D)
     K_ref = np.einsum("prqs,rs->pq", I, D)
 
-    J, K = jk.compute_JK(Cocc)
+    J, K = jk.by_conventional(I, D)
     assert np.allclose(J_ref, J)
     assert np.allclose(K_ref, K)

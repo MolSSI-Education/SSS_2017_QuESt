@@ -21,3 +21,5 @@ set(CMAKE_CXX_FLAGS "-fopenmp")
 
 find_package(TargetLAPACK REQUIRED)
 target_link_libraries(core PRIVATE tgt::lapack)
+
+pybind11_add_module(JK_builder_C MODULE JK_builder_C.cpp)

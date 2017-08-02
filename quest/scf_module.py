@@ -44,7 +44,7 @@ def compute_rhf(wfn, df=True, diis=True, maxiter=25, e_conv=1.e-6, d_conv=1.e-6)
 
     # Grab the number of doubly occupied orbs
     ndocc = int(wfn.options["nel"] / 2)
-    
+
 
     # An internal diaognalize function
     def diag(F, A):
@@ -121,9 +121,10 @@ def compute_rhf(wfn, df=True, diis=True, maxiter=25, e_conv=1.e-6, d_conv=1.e-6)
     print('Final SCF energy: %.8f hartree' % SCF_E)
 
     wfn.energies['scf_energy'] = SCF_E
-    wfn.arrays['fock_matrix'] = F
-    wfn.arrays['density'] = D
-    wfn.arrays['coefficients'] = C
+    wfn.arrays['F'] = F
+    wfn.arrays['D'] = D
+    wfn.arrays['C'] = C
+    wfn.arrays['eps'] = eps
 
     return wfn.energies["scf_energy"]
     # wfn.arrays['grad_rms'] = grad_rms

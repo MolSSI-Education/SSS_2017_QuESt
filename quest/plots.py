@@ -60,7 +60,7 @@ def plot_rdf(r_domain, gr, r_max, gr_max):
     plt.show()
 
 
-def plot_LJ(fnam, mol):
+def plot_LJ(mol):
     """
     Plotting function to accompany lj_fit()
 

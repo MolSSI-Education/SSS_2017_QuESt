@@ -13,8 +13,16 @@ def test_scf():
         basis = 'sto-3g'
 
         molecule = quest.Molecule(mol_str, basis)
-        wfn = quest.Wavefunction(molecule, {})
+        rhf_options = \
+        {
+            'e_conv': 1.e-8,
+            'd_conv': 1.e-8,
+            'diis': True,
+            'max_diis': 7,
+            'max_iter': 100,
+        }
 
+        wfn = quest.Wavefunction(molecule, rhf_options)
 
         # Compute RHF
         scf_energy = quest.scf_module.compute_rhf(wfn)

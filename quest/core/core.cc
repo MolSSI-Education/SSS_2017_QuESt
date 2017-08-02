@@ -59,7 +59,7 @@ void compute_PKJK(py::array_t<double> I, py::array_t<double> D, py::array_t<doub
     }
 }
 
-void compute_DFJK(py::array_t<double> Ig, py::array_t<double> D, py::array_t<double> J, py::array_t<double> K)
+void compute_DFJK(py::array_t<double> I, py::array_t<double> D, py::array_t<double> J, py::array_t<double> K)
 {
     // Get the array objects.
     py::buffer_info I_info = I.request();
@@ -67,18 +67,18 @@ void compute_DFJK(py::array_t<double> Ig, py::array_t<double> D, py::array_t<dou
     py::buffer_info J_info = J.request();
     py::buffer_info K_info = K.request();    
 
-    if(Ig_info.ndim != 3) throw std::runtime_error("I is not a rank-3 tensor!");
+    if(I_info.ndim != 3) throw std::runtime_error("I is not a rank-3 tensor!");
     if(D_info.ndim != 2) throw std::runtime_error("D is not a matrix!");
     if(J_info.ndim != 2) throw std::runtime_error("J is not a matrix!");
     if(K_info.ndim != 2) throw std::runtime_error("K is not a matrix!");
 
-    const double * Ig_data = static_cast<double *>(Ig_info.ptr);
+    const double * I_data = static_cast<double *>(I_info.ptr);
     const double * D_data = static_cast<double *>(D_info.ptr);
     double * J_data = static_cast<double *>(J_info.ptr);
     double * K_data = static_cast<double *>(K_info.ptr);
 
     size_t dimD = D_info.shape[0];
-    size_t dimIg = Ig_info.shape[0];
+    size_t dimIg = I_info.shape[0];
 
     // Intermediates.
     std::vector<double> kaiP_data(dimIg);
@@ -94,7 +94,7 @@ void compute_DFJK(py::array_t<double> Ig, py::array_t<double> D, py::array_t<dou
             #pragma omp simd
             for(size_t s = 0; s < dimD; s++)
             {
-                value += Ig_data[p * dimD * dimD + l * dimD + s]* D_data[l * dimD + s];
+                value += I_data[p * dimD * dimD + l * dimD + s]* D_data[l * dimD + s];
             }
         }
         kaiP_data[p] = value;
@@ -107,7 +107,7 @@ void compute_DFJK(py::array_t<double> Ig, py::array_t<double> D, py::array_t<dou
             double value = 0.;
             for(size_t p = 0; p < dimIg; p++)
             {
-                value += Ig_data[p * dimD * dimD + l * dimD + s] * kaiP_data[p];
+                value += I_data[p * dimD * dimD + l * dimD + s] * kaiP_data[p];
             }
             J_data[l * dimD + s] = value;
             J_data[s * dimD + l] = value;
@@ -125,7 +125,7 @@ void compute_DFJK(py::array_t<double> Ig, py::array_t<double> D, py::array_t<dou
                 double value = 0.;
                 for(size_t s = 0; s < dimD; s++)
                 {
-                    value += Ig_data[p * dimD * dimD + l * dimD + s] * D_data[m * dimD + s];
+                    value += I_data[p * dimD * dimD + l * dimD + s] * D_data[m * dimD + s];
                 }
                 zeta_data[p * dimD * dimD + l * dimD + m] = value;
             }
@@ -141,7 +141,7 @@ void compute_DFJK(py::array_t<double> Ig, py::array_t<double> D, py::array_t<dou
             {
                 for(size_t r = 0; r < dimD; r++)
                 {
-                    value += Ig_data[p * dimD * dimD + l * dimD + r] * zeta_data[p * dimD * dimD + s * dimD + r];
+                    value += I_data[p * dimD * dimD + l * dimD + r] * zeta_data[p * dimD * dimD + s * dimD + r];
                 }
             }
             K_data[l * dimD + s] = value;

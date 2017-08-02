@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.sparse.linalg as spla
 import scipy as sp
-from hessian_builders import *
+from .hessian_builders import *
 
 
 

@@ -12,10 +12,19 @@ def test_mp2():
     mol_str = quest.mollib["h2o"]
     basis = "sto-3g"
 
-    molecule = quest.Molecule(mol_str, basis)
-    wfn = quest.Wavefunction(molecule, {})
+    rhf_options = \
+    {
+        'e_conv': 1.e-8,
+        'd_conv': 1.e-8,
+        'diis': True,
+        'max_diis': 7,
+        'max_iter': 100,
+    }
 
-    scf_energy = quest.scf_module.compute_rhf(wfn, df=False, diis=False)
+    molecule = quest.Molecule(mol_str, basis)
+    wfn = quest.Wavefunction(molecule, rhf_options)
+
+    scf_energy = quest.scf_module.compute_rhf(wfn)
     mp2_energy = quest.mp2.mp2(wfn)
 
     psi4.set_options({"scf_type": "pk", "mp2_type":"conv"})

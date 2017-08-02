@@ -21,7 +21,7 @@ def tail_correction(box_length):
 
 def monte_carlo(sigma, epsilon, coord_file, parameters):
     #coordinates_NIST = np.loadtxt("lj_sample_config_periodic1.txt", skiprows=2, use cols=(1, 2, 3)) 
-    coord_file ="/home/yohanna/Gits/SSS_2017_QuESt/quest/lj_sample_config_periodic1.txt"
+    #coord_file ="/home/yohanna/Gits/SSS_2017_QuESt/quest/lj_sample_config_periodic1.txt"
     box_length = parameters['mm']['box_size']
     num_steps = parameters['mm']['num_steps']
     tolerance_acce_rate = parameters['mm']['acc_rate']

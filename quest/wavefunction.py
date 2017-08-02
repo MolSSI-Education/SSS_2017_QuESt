@@ -47,6 +47,13 @@ class Wavefunction(object):
         # Set whichever options you would like. The only default is the
         # basis set name.
         self.options = parameters
+        self.options["nel"] = mol.nel
+
+        # !!!FIX ME !!!
+        self.options["max_diis"] = 6
+        
+        # Save the molecule
+        self.mol = mol
 
         # Build the mints object
         self.mints = psi4.core.MintsHelper(mol.bas)

@@ -4,21 +4,24 @@ This file tests the SCF module
 
 import quest
 import pytest
-import psi4
 import numpy as np
+import psi4
 
 def test_scf():
 
-    geom = psi4.geometry("""
-    O
-    H 1 1.1
-    H 1 1.1 2 104
-    symmetry c1
-    """
-    )
 
-    bas = 'sto-3g'
+    mol_str = quest.mollib["h2o"]
+    basis = 'sto-3g'
+ 
+    molecule = quest.Molecule(mol_str, basis)
+    wfn = quest.Wavefunction(molecule, {})
 
-    molecule = quest.RHF(geom, bas)
+    # Compute RHF
+    scf_energy = quest.scf_module.compute_rhf(wfn, df=False, diis=False)
+
+    psi4.set_options({"scf_type": "pk"})
+    ref_energy = psi4.energy("SCF" + "/" + basis, molecule=molecule.mol)
+
+    assert np.allclose(ref_energy, scf_energy)
 
     pass

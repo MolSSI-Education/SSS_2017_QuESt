@@ -40,13 +40,14 @@ class Molecule(object):
 
         self.mol = mol
         self.bas = bas
+        self.nuclear_repulsion_energy = 0.0
 
         # Sets molecule and basis set
-        if bas is not None:
-            self.set_basis(bas)
-
         if mol is not None:
             self.set_geometry(mol)
+
+        if bas is not None:
+            self.set_basis(bas)
             
         self.bas_name = psi4.core.BasisSet.name(self.bas)
 
@@ -85,6 +86,7 @@ class Molecule(object):
             raise TypeError("Input molecule of type %s is not understood" % type(geom_str))
 
         self.mol.update_geometry()
+        self.nuclear_repulsion_energy = self.mol.nuclear_repulsion_energy()
 
     def set_basis(self, bas_str):
         """

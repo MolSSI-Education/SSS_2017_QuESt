@@ -10,7 +10,7 @@ def plot_rdf(writer, ax, line, r_d, gr):
     #line.set_data(r_max, gr_max)
     ax.clear()
     ax.plot(r_d, gr)
-    ax.text(r_max + .05, gr_max, 'Local max', fontsize=20)
+    ax.text(r_max + .05, gr_max, 'Local max', fontsize=10)
     writer.grab_frame()
     #plt.show()
 

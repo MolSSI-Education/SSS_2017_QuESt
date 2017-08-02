@@ -20,8 +20,6 @@ metadata = dict(title='Movie Test', artist='Matplotlib',
 writer = FFMpegWriter(fps=15, metadata=metadata)
 
 fig = plt.figure()
-pl1, = plt.plot([], [], 'k-o')
-pl2, = plt.plot([], [], 'k-o')
 plt.xlim(0, 2.5)
 plt.ylim(0, 2)
 writer.setup(fig, "writer_test.mp4", 200)
@@ -154,7 +152,7 @@ tail_correction = tail_correction(box_length)
 # # Monte Carlo algorithm
 n_trials = 0
 n_accept = 0
-n_steps = 1000
+n_steps = 2000
 energy_array = np.zeros(n_steps)
 
 ## RDF stuff

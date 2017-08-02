@@ -5,21 +5,54 @@ An SCF module
 import numpy as np
 import psi4
 import time
+from . import solvers
+from . import jk
 
+def compute_rhf(wfn):
+    """Compute the RHF energy with options to use DIIS and compute JK using
+    DF algorithms.
 
-def compute_JK(g, D, version):
-    if version == "conv":
-        J = np.einsum("pqrs,rs->pq", g, D)
-        K = np.einsum("prqs,rs->pq", g, D)
-    else:
-        raise KeyError("Key %s not recognized" % version)
+    Parameters
+    ---------
+    wfn : QuESt Wavefunction class
+        Should be initialized before computing RHF energy.
 
-    return J, K
+    Returns
+    ---------
+    wfn.energies["scf_energy"] : double
+        The total energy that is finally stored in the energies dictionary
+        under the Wavefunction class.
 
+    Raises
+    ---------
+    Exception
+        More than 100 basis functions.
+    Exception
+        When max_diis is less than 1.
 
-def compute_rhf(wfn, df=True, diis=True, maxiter=25, e_conv=1.e-6, d_conv=1.e-6):
-    """
-    Add docs here!
+    Notes
+    ---------
+    Parameters found in options dictionary:
+    nel : int
+        Used to calculate the number of doubly occupied orbitals
+    max_iter : int
+        Used to set the range for the SCF loop
+    diis : bool
+        Used to toggle diis
+    max_diis : int
+        Used to limit the number of Fock matrices used in DIIS
+    e_conv : double
+        Used as SCF energy convergence criterion
+    d_conv : double
+        Used as SCF gradient convergence criterion
+
+    Examples
+    ---------
+    >>>wfn = wavefunction.Wavefunction(mol, options)
+    >>>scf_module.compute_rhf(wfn)
+        The options specified under 'Notes' must be in the parameters file
+        or passed directly to the Wavefunction object before scf can be run.
+
     """
     nbf = wfn.mints.nbf()
 
@@ -68,15 +101,16 @@ def compute_rhf(wfn, df=True, diis=True, maxiter=25, e_conv=1.e-6, d_conv=1.e-6)
 
     # Roothan iterations
     print('\nStarting SCF iterations:\n')
-    for iteration in range(maxiter):
-        J, K = compute_JK(g, D, "conv")
 
+    jk_calc = jk.build_JK(wfn.mints, "PK")
+    for iteration in range(wfn.options["max_iter"]):
+        J, K = jk_calc.compute_JK(Cocc)
         # Fock Matrix and gradient
         F = H + 2.0 * J - K
         grad = F @ D @ S - S @ D @ F
         grad_rms = np.mean(grad**2)**0.5
 
-        if diis:
+        if wfn.options['diis'] and iteration >= 2:
             # Do DIIS
             F_list.append(F)
             diis_grad = A.T @ grad @ A
@@ -85,13 +119,23 @@ def compute_rhf(wfn, df=True, diis=True, maxiter=25, e_conv=1.e-6, d_conv=1.e-6)
             DIIS_grad.append(diis_grad)
 
             # Manipulate the DIIS graidents
-            #if len(diis_grad) > wfn.options['max_diis']:
-            #    index = grad_rms_list.index(max(grad_rms_list[:-1]))
-            #    F_list.pop(index)
-            #    DIIS_grad.pop(index)
-            #    grad_rms_list.pop(index)
+            if wfn.options['max_diis'] < 2:
+                raise Exception("When using diis, max_diis must be at least 1!")
+            if len(grad_rms_list) > wfn.options['max_diis']:
+                print("len(grad_rms_list) is", len(grad_rms_list));
+                index = grad_rms_list.index(max(grad_rms_list[:-1]))
+                F_list.pop(index)
+                DIIS_grad.pop(index)
+                grad_rms_list.pop(index)
 
-            F = diis(F_list, DIIS_grad)
+            F = solvers.DIIS_step(F_list, DIIS_grad)
+
+        elif wfn.options['diis'] and iteration < 2:
+            F_list.append(F)
+            diis_grad = A.T @ grad @ A
+            grad_rms = np.mean(diis_grad**2)**0.5
+            grad_rms_list.append(grad_rms)
+            DIIS_grad.append(diis_grad)
 
         else:
             # Use damping of the Fock matrix
@@ -110,7 +154,7 @@ def compute_rhf(wfn, df=True, diis=True, maxiter=25, e_conv=1.e-6, d_conv=1.e-6)
         Cocc = C[:, :ndocc]
         D = Cocc @ Cocc.T
 
-        if (SCF_E - SCF_E_old < e_conv) and (grad_rms < d_conv):
+        if (SCF_E - SCF_E_old < wfn.options['e_conv']) and (grad_rms < wfn.options['d_conv']):
             break
 
         SCF_E_old = SCF_E
@@ -127,4 +171,3 @@ def compute_rhf(wfn, df=True, diis=True, maxiter=25, e_conv=1.e-6, d_conv=1.e-6)
     wfn.arrays['eps'] = eps
 
     return wfn.energies["scf_energy"]
-    # wfn.arrays['grad_rms'] = grad_rms

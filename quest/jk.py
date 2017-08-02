@@ -86,10 +86,10 @@ class DFJK(object):
     def __init__(self, mints, bas, mol, basname):
         """
         Initialized the JK object from a MintsHelper object.
-        Prepare the auxiliary integrals.        
+        Prepare the auxiliary integrals.
         """
         self.nbf = mints.nbf()
-        self.I = np.asarray(mints.ao_eri())        
+        self.I = np.asarray(mints.ao_eri())
         # Build the complementary JKFIT basis for the aug-cc-pVDZ basis (for example)
         aux = psi4.core.BasisSet.build(mol, fitrole="JKFIT", other="aug-cc-pVDZ")
         # The zero basis set
@@ -103,7 +103,7 @@ class DFJK(object):
         metric = mints.ao_eri(zero_bas, aux, zero_bas, aux)
         metric.power(-0.5, 1.e-14)
         metric = np.squeeze(metric) # remove the 1-dimensions
-        Pls = np.einsum('pq,qls->pls', metric, Qls_tilde)    
+        Pls = np.einsum('pq,qls->pls', metric, Qls_tilde)
         self.__Ig = Pls
 
     def compute_JK(self, C_left, C_right=None):

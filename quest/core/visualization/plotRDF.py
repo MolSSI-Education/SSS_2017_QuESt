@@ -2,17 +2,16 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import animation as ani
 
-"""
-Plot the RDF plot
-"""
-def plot_rdf(r_domain, gr, r_max, gr_max):
-    
-    fig = plt.figure()
-    plt.xlabel("Distance")
-    plt.ylabel("Radial Distribution Function")
-    plt.style.use('seaborn-poster')
-    ax = fig.add_subplot(111)
-    line, = ax.plot(r_domain, gr, color='#ee8d18', lw=3)
-    ax.plot([r_max], [gr_max], 'o')                                     # <--
-    ax.text(r_max + .05, gr_max, 'Local max', fontsize=20)
-    plt.show()
+#def plot_rdf(writer, ax, line, r_d, gr, r_max, gr_max):
+def plot_rdf(writer, ax, line, r_d, gr):
+
+    gr_max = gr.max()
+    r_max = r_d[ gr.argmax() ]
+    #line.set_data(r_max, gr_max)
+    ax.clear()
+    ax.plot(r_d, gr)
+    ax.text(r_max + .05, gr_max, 'Local max', fontsize=10)
+    writer.grab_frame()
+    #plt.show()
+
+   

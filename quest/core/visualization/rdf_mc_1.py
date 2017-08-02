@@ -9,6 +9,26 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 #%matplotlib notebook
+#matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import matplotlib.animation as manimation
+import plotRDF as pla
+
+FFMpegWriter = manimation.writers['ffmpeg']
+metadata = dict(title='Movie Test', artist='Matplotlib',
+                comment='Movie support!')
+writer = FFMpegWriter(fps=15, metadata=metadata)
+
+fig = plt.figure()
+plt.xlim(0, 2.5)
+plt.ylim(0, 2)
+writer.setup(fig, "writer_test.mp4", 200)
+
+plt.xlabel("Distance")
+plt.ylabel("Radial Distribution Function")
+plt.style.use('seaborn-poster')
+ax = fig.add_subplot(111)
+
 
 
 # In[2]:
@@ -132,7 +152,7 @@ tail_correction = tail_correction(box_length)
 # # Monte Carlo algorithm
 n_trials = 0
 n_accept = 0
-n_steps = 1000
+n_steps = 2000
 energy_array = np.zeros(n_steps)
 
 ## RDF stuff
@@ -146,6 +166,8 @@ half_box_length2 = np.power(half_box_length, 2)
 r_domain = np.linspace(0.0, half_box_length, bins)
 const = 4.0 * reduced_density * np.pi / 3.0
 number_of_snapshots = 1
+
+line, = ax.plot(r_domain, gr, color='#ee8d18', lw=3)
 
 for i_bin in range(0, bins):
     r_lower = i_bin * delta_r
@@ -203,10 +225,13 @@ for i_step in range(0,n_steps):
 
             current_gr = gr / gr_ideal / number_of_snapshots / num_particles
             number_of_snapshots += 1
-            plt.plot(r_domain, current_gr)
-            plt.show()
+            pla.plot_rdf(writer, ax, line, r_domain, current_gr) 
+
+            #pl2.set_data(r_domain, current_gr)
+            #writer.grab_frame()
 
 
+writer.finish()
 # In[ ]:
 
 # plt.plot(energy_array[50000:])

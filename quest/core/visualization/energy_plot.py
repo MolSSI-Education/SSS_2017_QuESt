@@ -8,6 +8,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def mc_energyplot(energy_array):
+
+        """
+        Plots the energy array.
+        Parameters
+        ----------
+        energy_array : numpy array 
+        Returns
+        -------
+        Plot 
+        Examples
+        --------
+	energy_array = np.arange(1000)
+        mc_energyplot(energy_array)
+	"""
 	
 
 	plt.plot(energy_array, "r-", label ="energy")

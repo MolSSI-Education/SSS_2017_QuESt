@@ -1,5 +1,5 @@
 """
-This file takes the energy array and step size and plots them!!
+This file takes the energy array and plots!!
 To call the function use mc_plot(energy_array)
 """
 

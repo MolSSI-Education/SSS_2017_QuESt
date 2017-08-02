@@ -2,6 +2,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import animation as ani
 
+"""
+Plots the rdf plot
+"""
 def plot_rdf(r_domain, gr, r_max, gr_max):
     
     fig = plt.figure()

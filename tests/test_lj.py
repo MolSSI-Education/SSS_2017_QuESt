@@ -1,5 +1,5 @@
 import pytest
-import quest 
+import quest
 import psi4
 import numpy as np
 
@@ -12,7 +12,8 @@ def test_lj_fit():
     assert np.isclose(A, 148.0) and np.isclose(B, -1.0)
 
 def test_get_lj_params():
-    mol_psi = psi4.geometry("He")
-    test = molecule.Molecule(mol_psi, "sto-3g")
-    s, a, b, e, d = build_lj_params(test, True)
+    mol_psi = "He"
+    test = quest.molecule.Molecule(mol_psi, "aug-cc-pvdz")
+    s, a, b, e, d = quest.lj.build_lj_params(test, True)
+    print(s)
     assert abs(s - 2.8) <= 1

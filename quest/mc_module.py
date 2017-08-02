@@ -1,3 +1,5 @@
+import numpy as np
+import mc_functions as mc
 #Monte Carlo module
 
 def lennard_jones_potential(rij2):

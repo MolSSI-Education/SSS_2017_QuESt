@@ -14,7 +14,4 @@ def plot_rdf(writer, ax, line, r_d, gr):
     writer.grab_frame()
     #plt.show()
 
-#def myplot(wr, pl1, pl2, x, y, x_max, y_max):
-    
-#    pl1.set_data(x, y)
-    
+   

@@ -1,0 +1,15 @@
+qm:
+  basis_set: 'sto-3g'
+  max_iter: 100
+  dcov: 1.0e-06
+  ecov: 1.0e-06
+mm:
+  num_particles: 1000
+  num_steps: 10000
+  box_size: 10.0
+  cutoff: 3.0
+  reduced_density: 0.9
+  reduced_temperature: 0.9
+  max_displacement: 0.1
+  acc_rate_tol: [0.38, 0.42]
+  acc_rate_scaling: [0.8, 1.2]

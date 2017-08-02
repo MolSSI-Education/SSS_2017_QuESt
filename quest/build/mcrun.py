@@ -8,8 +8,7 @@ import mc_demo as mc
 # Parameters
 reduced_density = 0.9 
 reduced_temperature = 0.9 
-num_particles = 800 
-
+num_particles = 800
 beta = 1 / reduced_temperature
 #box_length = np.cbrt(num_particles / reduced_density)
 box_length = 10.0
@@ -100,7 +99,7 @@ tail_correction = tail_correction(box_length)
 # Monte Carlo algorithm
 
 num_steps = 10000
-energy_array = np.zeros(num_steps)
+total_energy = np.zeros(num_steps)
 
 num_accept = 0
 num_trials = 0
@@ -137,11 +136,13 @@ for i_step in range(num_steps):
         acc_rate = float(num_accept) / float(num_steps)
         num_accept = 0
         num_trials = 0
-        if acc_rate < 0.38:
-            max_displacement *= 0.8
-        elif acc_rate > 0.42:
-            max_displacement *= 1.2
-    total_energy = (total_pair_energy + tail_correction) / num_particles
-    energy_array[i_step] = total_energy
-    print (total_energy*num_particles)
+        if acc_rate < 0.380:
+            acc_rate_scaling = 0.8
+            max_displacement *= acc_rate_scaling
+        elif acc_rate > 0.42: 
+            acc_rate_scaling_2 = 1.2
+            max_displacement *= acc_rate_scaling_2
+    total_energy[i_step] = total_pair_energy + tail_correction
+   # energy_array[i_step] = total_energy
+np.savetxt('total_energy.txt', (total_energy))    
 

@@ -37,7 +37,11 @@ void compute_PKJK(py::array_t<double> I, py::array_t<double> D, py::array_t<doub
     double* J_ptr = static_cast<double*>(J_info.ptr);
     double* K_ptr = static_cast<double*>(K_info.ptr);
 
+# pragma omp parallel for
     for (size_t p = 0; p < nbf; p++){
+
+//         int tid = omp_get_thread_num();
+//         printf("Hello World from thread = %d\n", tid);
         for (size_t q = 0; q < nbf; q++){
             for (size_t r = 0; r < nbf; r++){
 #pragma omp simd

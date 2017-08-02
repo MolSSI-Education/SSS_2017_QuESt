@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-This is a setup script for install a python project with a CMake dependency.
+This is a setup script for install a python quest with a CMake dependency.
 
 For simplicity this will use Psi4's Cache to make detection extremely simple
 """
@@ -45,13 +45,13 @@ def sanitize_cmake(output):
 
 class cmake_build(install):
 
-    #    description = 'Build the nested CMake project'
+    #    description = 'Build the nested CMake quest'
 
     def run(self):
 
         # Find build directory (in-place)
         abspath = os.path.abspath(os.path.dirname(__file__))
-        build_path = os.path.join(abspath, "project", "core")
+        build_path = os.path.join(abspath, "quest", "core")
         os.chdir(build_path)
         print(">>> cd {}".format(build_path))
 
@@ -72,8 +72,8 @@ class cmake_build(install):
         # Run install
         print("Compiling...")
         output = sp.check_output(["make", "-j2", "VERBOSE=1"], stderr=sp.STDOUT).decode("UTF-8").splitlines()
-        #print_out = sanitize_cmake(output)
-        print_out = '\n'.join(output)
+        print_out = sanitize_cmake(output)
+        #print_out = '\n'.join(output)
         print(">>> make -j2\n{}".format(print_out))
 
         if "[100%]" not in print_out:
@@ -85,7 +85,7 @@ class cmake_clean(install):
 
         # Find build directory (in-place)
         abspath = os.path.abspath(os.path.dirname(__file__))
-        build_path = os.path.join(abspath, "project", "core")
+        build_path = os.path.join(abspath, "quest", "core")
         os.chdir(build_path)
         print("Removing CMake build files...")
 
@@ -105,7 +105,7 @@ class cmake_clean(install):
 
 if __name__ == "__main__":
     setuptools.setup(
-        name='project',
+        name='quest',
         version="0.2.1",
         description='A hybrid C++/Python program for QM and MM',
         author='The MolSSI 2017 Summer School',

@@ -4,6 +4,7 @@ Contains all of the SCF functions for this project.
 
 import numpy as np
 
+
 class RHF(object):
     def __init__(self, molecule, basis_name, numpy_memory=1.e9):
 

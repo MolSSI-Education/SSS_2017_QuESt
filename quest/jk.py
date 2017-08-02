@@ -6,6 +6,7 @@ from . import core
 import numpy as np
 import psi4
 
+
 def build_JK(mints, jk_type, auxiliary=None):
     """
     Construct a JK object of various types with the given specifications.
@@ -42,6 +43,7 @@ def build_JK(mints, jk_type, auxiliary=None):
     else:
         raise KeyError("build_JK: Unknown JK type '%s'" % jk_type)
 
+
 class PKJK(object):
     """
     Constructs a "PK" JK object. This effectively holds two supermatrices which the inner product is
@@ -58,13 +60,10 @@ class PKJK(object):
         """
         self.nbf = mints.nbf()
         self.I = np.asarray(mints.ao_eri())
-        self.I_J = np.asarray(mints.ao_eri())
-        self.I_K = self.I_J.swapaxes(1, 2).reshape(self.nbf * self.nbf, -1)
-        self.I_J.shape = (self.nbf * self.nbf, -1)
 
     def compute_JK(self, C_left, C_right=None):
         """
-        Compute the J and K matrices for Cocc orbitals 
+        Compute the J and K matrices for Cocc orbitals
         """
 
         if C_right is None:

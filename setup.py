@@ -117,6 +117,7 @@ if __name__ == "__main__":
             'numpy>=1.7',
             'pytest>=3.0',
             'pytest-cov',
+            'pyyaml'
         ],
         extras_require={
             'docs': [
@@ -137,4 +138,3 @@ if __name__ == "__main__":
             'clean': cmake_clean,
         },
     )
-

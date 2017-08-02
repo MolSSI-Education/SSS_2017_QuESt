@@ -7,53 +7,55 @@
 namespace py = pybind11;
 
 void compute_PKJK(py::array_t<double> I, py::array_t<double> D, py::array_t<double> J, py::array_t<double> K) {
-
-    // Grab the py::buffer info from each array
+    // Get the array objects.
     py::buffer_info I_info = I.request();
     py::buffer_info D_info = D.request();
     py::buffer_info J_info = J.request();
-    py::buffer_info K_info = K.request();
+    py::buffer_info K_info = K.request();    
 
-    // Do a few size checks
-    size_t nbf = I_info.shape[0];
-    size_t nbf2 = nbf * nbf;
-    size_t nbf3 = nbf2 * nbf;
+    if(I_info.ndim != 4) throw std::runtime_error("I is not a rank-4 tensor!");
+    if(D_info.ndim != 2) throw std::runtime_error("D is not a matrix!");
+    if(J_info.ndim != 2) throw std::runtime_error("J is not a matrix!");
+    if(K_info.ndim != 2) throw std::runtime_error("K is not a matrix!");
 
-    if ((D_info.shape.size() != 2) || (nbf != D_info.shape[0]) || (nbf != D_info.shape[1])){
-        throw std::length_error("The shape of the Density matrix does not match the ERI!");
-    }
+    const double * I_data = static_cast<double *>(I_info.ptr);
+    const double * D_data = static_cast<double *>(D_info.ptr);
+    double * J_data = static_cast<double *>(J_info.ptr);
+    double * K_data = static_cast<double *>(K_info.ptr);
 
-    if ((J_info.shape.size() != 2) || (nbf != J_info.shape[0]) || (nbf != J_info.shape[1])){
-        throw std::length_error("The shape of the Coulomb matrix does not match the ERI!");
-    }
+    // Get the dimensions.
+    size_t dim = D_info.shape[0];
+    size_t dim2 = dim*dim;
+    size_t dim3 = dim*dim2;
 
-    if ((K_info.shape.size() != 2) || (nbf != K_info.shape[0]) || (nbf != K_info.shape[1])){
-        throw std::length_error("The shape of the Exchange matrix does not match the ERI!");
-    }
-
-    // Loop and build J and K
-    double* I_ptr = static_cast<double*>(I_info.ptr);
-    double* D_ptr = static_cast<double*>(D_info.ptr);
-    double* J_ptr = static_cast<double*>(J_info.ptr);
-    double* K_ptr = static_cast<double*>(K_info.ptr);
-
-# pragma omp parallel for
-    for (size_t p = 0; p < nbf; p++){
-
-//         int tid = omp_get_thread_num();
-//         printf("Hello World from thread = %d\n", tid);
-        for (size_t q = 0; q < nbf; q++){
-            for (size_t r = 0; r < nbf; r++){
-#pragma omp simd
-                for (size_t s = 0; s < nbf; s++){
-                    // printf("%zu %zu %zu %zu | %zu %zu\n", p, q, r, s, p * nbf + s, p * nbf3 + q * nbf2 + r * nbf + s);
-                    J_ptr[p * nbf + q] += D_ptr[r * nbf + s] * I_ptr[p * nbf3 + q * nbf2 + r * nbf + s];
-                    K_ptr[p * nbf + q] += D_ptr[r * nbf + s] * I_ptr[p * nbf3 + r * nbf2 + q * nbf + s];
+    // Formation of J and K.
+    #pragma omp parallel for num_threads(4) schedule(dynamic)
+    for(size_t p = 0; p < dim; p++)
+    {
+        for(size_t q = 0; q <= p; q++)
+        {
+            double Jvalue = 0.;
+            double Kvalue = 0.;
+            for(size_t r = 0; r < dim; r++)
+            {
+                #pragma omp simd
+                for(size_t s = 0; s < r; s++)
+                {
+                    Jvalue += 2.*I_data[p * dim3 + q * dim2 + r * dim + s] * D_data[r * dim + s];
+                }
+                Jvalue += I_data[p * dim3 + q * dim2 + r * dim + r] * D_data[r * dim + r];
+                #pragma omp simd
+                for(size_t i = 0; i < dim; i++)
+                {
+                    Kvalue += I_data[p * dim3 + r * dim2 + q * dim + i] * D_data[r * dim + i];
                 }
             }
+            J_data[p * dim + q] = Jvalue;
+            J_data[q * dim + p] = Jvalue;
+            K_data[p * dim + q]	= Kvalue;
+            K_data[q * dim + p]	= Kvalue;            
         }
     }
-
 }
 
 PYBIND11_PLUGIN(core) {

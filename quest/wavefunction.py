@@ -13,11 +13,13 @@ class Wavefunction(object):
     -------
     mol : QuESt Molecule class
         Needs to have a basis set at least.
+    parameters : dictionary
+        Holds the starting QM parameters
 
     Attributes
     -------
     options : dictionary 
-        Stores various options, including the basis name.
+        Initializes with qm options from parameters file, can be edited. 
     mints : psi4.core.MintsHelper
         Psi4 mints object 
     energies : dictionary 
@@ -31,9 +33,12 @@ class Wavefunction(object):
     -------
     >>>h2o_wf = Wavefunction(mol)
     Creates an instance of the Wavefunction class called h2o_wf
+
+    >>>self.options['ex_param'] = 5.0
+    Adds a new entry to the options dictionary named "ex_param" with value 5.0
     """
 
-    def __init__(self, mol):
+    def __init__(self, mol, parameters):
         """
         Initialize the Wavefunction class.
 
@@ -41,7 +46,7 @@ class Wavefunction(object):
 
         # Set whichever options you would like. The only default is the
         # basis set name.
-        self.options = {'basis_name': mol.bas.name()}
+        self.options = parameters
 
         # Build the mints object
         self.mints = psi4.core.MintsHelper(mol.bas)

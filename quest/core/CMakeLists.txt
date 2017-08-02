@@ -16,8 +16,7 @@ set(PYBIND11_CPP_STANDARD -std=c++11)
 find_package(pybind11 CONFIG REQUIRED)
 message(STATUS "Found pybind11: ${pybind11_CONFIG}")
 
-pybind11_add_module(core core.cc)
-pybind11_add_module(mc_demo MODULE mc_demo.cpp)
+pybind11_add_module(core core.cc mc_functions.cc)
 set(CMAKE_CXX_FLAGS "-fopenmp")
 
 find_package(TargetLAPACK REQUIRED)

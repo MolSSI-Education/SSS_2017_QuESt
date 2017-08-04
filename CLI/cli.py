@@ -48,9 +48,16 @@ with open(args.parameters, 'r') as inp_file:
 
 if args.qm:
     qmp = params['qm']
-    driver.compute_rhf(mollib[args.molecule],
-                       basis_name=qmp['basis_name'],
-                       numpy_memory=qmp['numpy_memory'],
-                       maxiter=qmp['maxiter'],
-                       E_conv=qmp['E_conv'],
-                       D_conv=qmp['D_conv'])
+    scf_energy, wfn = driver.compute_rhf(mollib[args.molecule],
+                                         basis_name=qmp['basis_name'],
+                                         numpy_memory=qmp['numpy_memory'],
+                                         maxiter=qmp['maxiter'],
+                                         E_conv=qmp['E_conv'],
+                                         D_conv=qmp['D_conv'])
+
+    mp2_energy = driver.compute_mp2(wfn)
+    print('Total MP2 energy: %.5f' % mp2_energy)
+
+if args.mm:
+    sigma, A, B, energy, distance = driver.compute_lj_params(mollib[args.molecule], qmp['basis_name'])
+    print('Sigma: %.2f' % sigma)

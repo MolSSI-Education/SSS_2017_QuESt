@@ -10,12 +10,9 @@ import numpy as np
 psi4.set_output_file("output.dat", True)
 
 
-def test_PKJK():
-    molecule = psi4.geometry("""
-O
-H 1 1.1
-H 1 1.1 2 104
-""")
+@pytest.mark.parametrize("mol_str", ["h2o", "co", "co2", "c2h2", "c2h4"])
+def test_PKJK(mol_str):
+    molecule = psi4.geometry(quest.mollib[mol_str])
 
     basis = psi4.core.BasisSet.build(molecule, "ORBITAL", "STO-3G")
     mints = psi4.core.MintsHelper(basis)

@@ -101,21 +101,90 @@ def helper_PCG_direct(A, b, tol=1e-10, max_iter=None, x0=None, M=None):
     else:
         x = x0
     if M is None:
-        M = np.ones_like(A)
+        M = np.ones((A.shape[0]))
 
-    r = b - np.dot(A,x)
-    z = r/np.diag(M)
+    r = b - np.dot(A, x)
+    z = r / M
     n = len(b)
     p = z
-    res_k_norm = np.dot(r, z)
+    res_k_norm = np.vdot(r, z)
     print("Starting Conjugate Gradient Iterations...\n")
     for iteration in range(2*n):
         Ap = np.dot(A, p)
-        alpha = res_k_norm / np.dot(p, Ap)
+        alpha = res_k_norm / np.vdot(p, Ap)
         x += alpha * p
         r -= alpha * Ap
-        z = r/np.diag(M)
-        res_kplus1_norm = np.dot(r, z)
+        z = r / M
+        res_kplus1_norm = np.vdot(r, z)
+        beta = res_kplus1_norm / res_k_norm
+        res_k_norm = res_kplus1_norm
+        rms = np.sqrt(np.sum(r**2) / len(r))
+        print('CG Iteration %3d: RMS = %3.8f' % (iteration, rms))
+        if (res_kplus1_norm < tol) or (iteration > max_iter):
+            print('\nConverged!!\n')
+            break
+        p = beta * p + z
+    return x
+
+
+
+
+
+"""
+Contains the conjugate gradient helper function
+"""
+def helper_PCG(hess_vec, b, tol=1e-10, max_iter=None, x0=None, M=None):
+    """
+    Solves a linear system of equations Ax = b using a preconditioned conjugate gradient method within a user-defined tolerance while avoiding storage of the four-dimensional array A (for SCF Hessians)
+	
+
+    Parameters
+    ----------
+    hess_vec : function pointer to Hessian vector multiplication function 
+               (hess vec returns a vector Ax)
+    b : RHS vector (1-dimensional numpy array)
+    tol : User-defined tolerance for residual convergence (Default = 1.e-10)
+    max_iter : User-defined maximum number of iterations for convergence (Default = 2 * len(b))
+    x0 : User-specified guess vector (Default = zero-array)
+    M : Preconditioner Matrix (2-dimensional numpy array)  (Default = Identity Matrix)  
+
+    Returns
+    -------
+    x : solution vector of Ax = b
+
+    Notes
+    -----
+    
+    Examples
+    --------
+
+    x = helper_PCG(hess_vec, b)
+    ...
+
+    """
+
+    if max_iter is None:
+        max_iter = 2*len(b)
+    if x0 is None:
+        x = np.zeros_like(b)
+    else:
+        x = x0
+    if M is None:
+        M = np.ones_like(hess_vec.shape[0])
+
+    r = b - hess_vec(x)
+    z = r / M
+    n = len(b)
+    p = z
+    res_k_norm = np.vdot(r, z)
+    print("Starting Conjugate Gradient Iterations...\n")
+    for iteration in range(2*n):
+        Ap = hess_vec(p)
+        alpha = res_k_norm / np.vdot(Ap, p)
+        x += alpha * p
+        r -= alpha * Ap
+        z = r / M
+        res_kplus1_norm = np.vdot(r, z)
         beta = res_kplus1_norm / res_k_norm
         res_k_norm = res_kplus1_norm
         rms = np.sqrt(np.sum(r**2) / len(r))

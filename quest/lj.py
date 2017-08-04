@@ -8,7 +8,7 @@ This module takes a quest Molecule object and returns
 the Lennard-Jones potential parameters (sigma, A, B) 
 """
  
-def build_lj_params(mol, returnAll=False):
+def build_lj_params(mol, returnAll=False, method='MP2', start=2.0, stop=7.0, step=0.5):
     """
     Builds the Lennard-Jones coefficients/parameters/potential.
 
@@ -17,8 +17,15 @@ def build_lj_params(mol, returnAll=False):
     atom : Molecule
            Input molecule (should be one atom)
     returnAll : boolean
-                Whether to return coefficients and energies/distances in addition to sigma
-                False by default
+                Whether to return coefficients and energies/distances in addition to sigma (default is False)
+    method : string
+             Which method to use for energy calculations (currently supports MP2 and SCF, default is MP2)
+    start : double
+            The intermolecular distance at which to begin calculating energies (default is 2.0)
+    stop : double
+           The intermolecular distance at which to finish calculating energies (default is 7.0)
+    step : double
+           The step size between intermolecular distances (default is 0.5) 
 
     Returns
     -------
@@ -29,10 +36,7 @@ def build_lj_params(mol, returnAll=False):
     s = build_lj_params(molecule)
     s, A, B, e, d = build_lj_params(molecule, ReturnAll=True)
     """
-    # set up distances for PES
-    start = 2.0
-    stop = 7.0
-    step = 0.5
+    # set up storage for distance and energy values
     distances = np.arange(start, stop, step)
     energies = np.zeros(distances.size)
     # set up geometry stuff -- make new geom object to avoid overwriting the old one
@@ -44,14 +48,18 @@ def build_lj_params(mol, returnAll=False):
     for i, distance in enumerate(distances):
         # construct molecule w/ correct distance
         mol_geom = geom_string.format(atom_str, atom_str, distance)
-        #new_mol.set_geometry(mol_geom)
-        #new_mol.set_basis(mol.bas_name)
-        # call MP2 on molecule and get energy
-        
+        # perform initial SCF calculation
         energy, wfn = driver.compute_rhf(mol_geom, mol.bas_name)
-        energy_mp2 = driver.compute_mp2(wfn)
-        # add MP2 energy to energies list
-        energies[i] = energy_mp2
+        # if SCF, add energy to list
+        if(method.upper() == 'SCF'):
+            energies[i] = energy
+        # if MP2, calculate MP2 energy and add to list
+        elif(method.upper() == 'MP2'):
+            energy_mp2 = driver.compute_mp2(wfn)
+            energies[i] = energy_mp2
+        # only SCF/MP2 are currently supported
+        else:
+            raise ValueError('Method name for Lennard-Jones calculation not recognized!');
     # doing the fit
     A,B = fit_lj(distances, energies)
     # calculate sigma

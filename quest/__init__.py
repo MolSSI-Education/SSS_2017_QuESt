@@ -3,13 +3,17 @@ The primary init for the project.
 """
 
 from . import molecule
+from . import mc_demo
 from . import scf_module
 from . import jk
 from . import solvers
-from . import core
+#from . import core
 from . import mp2
 from . import lj
 from . import driver
+from . import montecarlo
+from .montecarlo import tail_correction
+from .montecarlo import rdf_func 
 
 from .mollib import mollib
 from .molecule import Molecule

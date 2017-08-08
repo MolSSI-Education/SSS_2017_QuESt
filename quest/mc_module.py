@@ -1,6 +1,9 @@
 import numpy as np
 import mc_functions as mc
-#Monte Carlo module
+
+"""
+This module will take in the sigma and epsilon parameters and will do a Monte Carlo simulation 
+"""
 
 def lennard_jones_potential(rij2):
     sig_by_r6 = (1 / rij2)**3
@@ -21,17 +24,34 @@ def tail_correction(box_length):
     e_correction *= 8.0 / 9.0 * np.pi * num_particles**2 / volume
     return e_correction
 
-def monte_carlo(sigma, epsilon, coord_file,box_length, num_steps, tolerance_acce_rate, max_displacement_scaling, num_accept, num_trials):
-    #coordinates_NIST = np.loadtxt("lj_sample_config_periodic1.txt", skiprows=2, use cols=(1, 2, 3)) 
-    #coord_file ="/home/yohanna/Gits/SSS_2017_QuESt/quest/lj_sample_config_periodic1.txt"
-#    box_length = parameters['mm']['box_size']
-#    num_steps = parameters['mm']['num_steps']
-#    tolerance_acce_rate = parameters['mm']['acc_rate']
-#    max_displacement_scaling = parameters['mm']['max_displacement']
-    coordinates_NIST = np.loadtxt(coord_file, skiprows=2, usecols=(1, 2, 3))        
+def monte_carlo(epsilon, box_length, num_steps, tolerance_acce_rate=[0.38, 0.42], max_displacement_scaling=[0.8, 1.2]):
+"""
+Runs MC simulation using the MCMC algorithm. 
+Conformations are chosen from a probability density based on the Metropolis Hastings criteria
+for acceptance
+
+------------
+PARAMETERS
+epsilon: passed in from lj fitting in order to convert reduced units to real units. 
+box_length: decides the size of the box
+num_steps: controls how many iterations the MC simulation will occur. start sampling 
+after 30,000 steps to ensure equilibration. 
+tolerance_acce_rate: controls the limits of accepting/rejecting conformational states.
+max_displacement_scaling: controls how much the atoms should be displaced, so that we 
+obtain more conformations within our tolerance acceptance rate.
+
+returns: 
+total energy and array of accepted coordinates. 
+  
+"""  
+
+
+    coordinates_NIST = np.loadtxt("lj_sample_config_periodic1.txt", skiprows=2, use cols=(1, 2, 3))   
     num_particles = len(coordinates_NIST)    
-#    num_accept = 0
-#    num_trials = 0
+    coordinates_of_simulation = np.zeros(num_particles,3) #where simulation coordinates will be stored. 
+    num_accept = 0
+    num_trials = 0
+    count = 0 # for storing accepted conformations
 
     for i_step in range(num_steps):
         num_trials += 1
@@ -47,11 +67,15 @@ def monte_carlo(sigma, epsilon, coord_file,box_length, num_steps, tolerance_acce
 
         if delta_energy < 0.0:
              accept = True
+             coordinates_of_simulation[count] = coordinates_NIST[i_particle]
+             count += 1;
         else:
              random_number = np.random.rand(1)
              p_acc = np.exp(-beta * delta_energy)
              if random_number < p_acc:
                  accept = True
+                coordinates_of_simulation[count] = coordinates_NIST[i_particle]
+                count += 1
              else:
                  accept = False
      

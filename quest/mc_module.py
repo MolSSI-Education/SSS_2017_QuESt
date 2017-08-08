@@ -24,7 +24,7 @@ def tail_correction(box_length):
     e_correction *= 8.0 / 9.0 * np.pi * num_particles**2 / volume
     return e_correction
 
-def monte_carlo(epsilon, box_length, num_steps, tolerance_acce_rate=[0.38, 0.42], max_displacement_scaling=[0.8, 1.2]):
+def monte_carlo(epsilon, box_length, cutoff, num_steps, tolerance_acce_rate=[0.38, 0.42], max_displacement_scaling=[0.8, 1.2]):
 """
 Runs MC simulation using the MCMC algorithm. 
 Conformations are chosen from a probability density based on the Metropolis Hastings criteria
@@ -34,6 +34,7 @@ for acceptance
 PARAMETERS
 epsilon: passed in from lj fitting in order to convert reduced units to real units. 
 box_length: decides the size of the box
+cutoff: determines the distance in which pair-wise energies are to be calculated. 
 num_steps: controls how many iterations the MC simulation will occur. start sampling 
 after 30,000 steps to ensure equilibration. 
 tolerance_acce_rate: controls the limits of accepting/rejecting conformational states.
@@ -61,7 +62,7 @@ total energy and array of accepted coordinates.
         #get_molecule_energy(i_particle, coordinates_NIST, box_length)
         random_displacement = (np.random.rand(3) - 0.5) * 2 * max_displacement
         coordinates_NIST[i_particle] += random_displacement
-        new_energy = mc.pair_energy(i_particle, coordinates_NIST[:,0],coordinates_NIST[:,1], coordinates_NIST[:,2], 10.0 , 9.0, epsilon)
+        new_energy = mc.pair_energy(i_particle, coordinates_NIST[:,0],coordinates_NIST[:,1], coordinates_NIST[:,2], box_length , cutoff, epsilon)
         #get_molecule_energy(i_particle, coordinates_NIST, box_length)
         delta_energy = new_energy - old_energy    
 

@@ -3,7 +3,6 @@ The primary init for the project.
 """
 
 from . import molecule
-from . import mc_demo
 from . import scf_module
 from . import jk
 from . import solvers
@@ -11,9 +10,7 @@ from . import solvers
 from . import mp2
 from . import lj
 from . import driver
-from . import montecarlo
-from .montecarlo import tail_correction
-from .montecarlo import rdf_func 
+from . import mc_module
 
 from .mollib import mollib
 from .molecule import Molecule
@@ -29,3 +26,4 @@ psi4.set_output_file("psi_output.out")
 
 # Import default params
 default_params = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'default_params.yml')
+lj_sample_config = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'lj_sample_config_periodic1.txt')

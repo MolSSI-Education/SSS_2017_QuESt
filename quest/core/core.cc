@@ -6,6 +6,20 @@
 
 namespace py = pybind11;
 
+//in mc_functions.cpp
+double system_energy (py::array_t <double> x_coords,
+                                    py::array_t <double> y_coords,
+                                    py::array_t <double> z_coords,
+                                    double box_length, double cutoff2, double epsilon);
+
+double pair_energy (int par_num, py::array_t <double> x_coords,
+                                    py::array_t <double> y_coords,
+                                    py::array_t <double> z_coords,
+                                    double box_length, double cutoff2, double epsilon); 
+
+
+
+
 void compute_PKJK(py::array_t<double> I, py::array_t<double> D, py::array_t<double> J, py::array_t<double> K)
 {
     // Get the array objects.
@@ -155,6 +169,8 @@ PYBIND11_PLUGIN(core) {
 
     m.def("compute_PKJK", &compute_PKJK, "A function that can compute the PK J and K matrices.");
     m.def("compute_DFJK", &compute_PKJK, "A function that can compute the J and K matrices using density-fitting.");
+    m.def("system_energy", &system_energy, "A function that calculates the total energies");
+    m.def("pair_energy", &pair_energy, "Calculates a single atom's interaction with all molecules");
 
     return m.ptr();
 }

@@ -55,19 +55,13 @@ class cmake_build(install):
         os.chdir(build_path)
         print(">>> cd {}".format(build_path))
 
-        # Capture cmake command
-        print("Acquiring CMake cache...")
-        output = sp.check_output(["psi4", "--plugin-compile"]).decode("UTF-8")
-        print(">>> psi4 --plugin-compile\n{}".format(output))
-        if "cmake -C" not in output:
+        # Run cmake command
+        print("Build CMake temporaries...")
+        print(">>> cmake .\n")
+        output = sp.check_output(["cmake", "."]).decode("UTF-8")
+        print(output)
+        if "Build files have been written to" not in output:
             raise Exception("Psi4 Cache Error.\n")
-
-        # Run CMake command
-        print("Building CMake structures...")
-        output = sp.check_output(output.strip().split()).decode("UTF-8")
-        print("{}".format(output))
-        if "Build files have been" not in output:
-            raise Exception("CMake error.\n")
 
         # Run install
         print("Compiling...")

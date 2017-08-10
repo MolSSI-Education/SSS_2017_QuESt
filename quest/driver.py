@@ -2,7 +2,7 @@
 Drives modules
 """
 
-from . import mp2
+from . import mp2_module
 from . import scf_module
 from . import molecule
 from . import wavefunction
@@ -21,7 +21,7 @@ def compute_scf_response(wavefunction):
 
 
 def compute_mp2(wavefunction):
-    return mp2.mp2(wavefunction)
+    return mp2_module.mp2(wavefunction)
 
 
 def compute_rhf(mol, basis_name="aug-cc-pvdz", numpy_memory=1.e9, maxiter=12,

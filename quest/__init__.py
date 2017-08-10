@@ -4,10 +4,10 @@ The primary init for the project.
 
 from . import molecule
 from . import scf_module
+from . import mp2_module
 from . import jk
 from . import solvers
 #from . import core
-from . import mp2
 from . import lj
 from . import driver
 from . import mc_module

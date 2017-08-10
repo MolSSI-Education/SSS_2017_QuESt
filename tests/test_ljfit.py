@@ -1,3 +1,7 @@
+"""
+Tests the LJ fitting function.
+"""
+
 import pytest
 import quest
 import psi4

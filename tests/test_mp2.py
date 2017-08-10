@@ -26,7 +26,7 @@ def test_mp2(mol_str):
     wfn = quest.Wavefunction(molecule, rhf_options)
 
     scf_energy = quest.scf_module.compute_rhf(wfn)
-    mp2_energy = quest.mp2.mp2(wfn)
+    mp2_energy = quest.mp2_module.mp2(wfn)
 
     psi4.set_options({"scf_type": "pk", "mp2_type": "conv"})
     ref_energy = psi4.energy("MP2" + "/" + basis, molecule=molecule.mol)
@@ -49,7 +49,7 @@ def test_df_mp2(mol_str):
     mol = quest.Molecule(geometry, basis)
     wafu = quest.Wavefunction(mol, rhf_options)
     scf_energy = quest.scf_module.compute_rhf(wafu)
-    mp2_energy = quest.mp2.df_mp2(wafu)
+    mp2_energy = quest.mp2_module.df_mp2(wafu)
 
     psi4.set_options({"scf_type": "df"})
     psi4_mp2_energy = psi4.energy('mp2/' + basis, molecule=geometry)

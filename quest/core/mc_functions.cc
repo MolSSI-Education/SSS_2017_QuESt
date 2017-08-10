@@ -75,17 +75,11 @@ double pair_energy(int par_num, py::array_t<double> x_coords, py::array_t<double
     const double *y_data = static_cast<double *>(y_coords_info.ptr);
     const double *z_data = static_cast<double *>(z_coords_info.ptr);
 
-    double i_x, i_y, i_z;
-    double j_x, j_y, j_z;
-    double rijx, rijy, rijz, rij2;
-    double sig_by_r6;
-    double sig_by_r12;
-    double lj_pot;
-
     double e_pair = 0.0;
-    i_x = x_data[3 * par_num];
-    i_y = y_data[3 * par_num];
-    i_z = z_data[3 * par_num];
+    double i_x = x_data[3 * par_num];
+    double i_y = y_data[3 * par_num];
+    double i_z = z_data[3 * par_num];
+
 #pragma omp parallel for schedule(static) reduction(+ : e_pair)
     for (int j = 0; j < num_particles; j++) {
         if (par_num != j) {

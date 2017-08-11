@@ -29,15 +29,17 @@ num_particles = np.shape(coordinates)[0]
 
 @pytest.mark.skip(reason="Needs fixing")
 def test_sys_ene():
-    energy = quest.core.system_energy(coordinates[:, 0], coordinates[:, 1], coordinates[:, 2], 10.0, 9.0)
+    random_coordinates = (0.5 - np.random.rand(800,3)) * box_length
+    energy = quest.core.system_energy(random_coordinates[:, 0], random_coordinates[:, 1], random_coordinates[:, 2], 10.0, 9.0)
     assert np.round(energy) == np.round(-4351.540194543863)
 
 
 @pytest.mark.skip(reason="Needs fixing")
 def test_pair_ene():
     tot = 0.0
+    random_coordinates = (0.5 - np.random.rand(800,3)) * box_length
     for i_particle in range(0, num_particles):
-        molenergy = quest.core.pair_energy(i_particle, coordinates[:, 0], coordinates[:, 1], coordinates[:, 2],
+        molenergy = quest.core.pair_energy(i_particle, random_coordinates[:, 0], random_coordinates[:, 1], random_coordinates[:, 2],
                                               10.0, 9.0)
         tot += molenergy
     assert np.round(tot / 2) == np.round(-4351.540194543863)

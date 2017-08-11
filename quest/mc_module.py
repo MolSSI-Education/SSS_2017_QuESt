@@ -103,9 +103,9 @@ def monte_carlo(epsilon,
 
 #    """
 
-    coordinates_NIST = np.loadtxt("lj_sample_config_periodic1.txt", skiprows=2, use_cols=(1, 2, 3))
+    coordinates_NIST = np.loadtxt("lj_sample_config_periodic1.txt", skiprows=2, usecols=(1, 2, 3))
     num_particles = len(coordinates_NIST)
-    coordinates_of_simulation = np.zeros(num_particles, 3)  #where simulation coordinates will be stored.
+    coordinates_of_simulation = np.zeros((num_particles, 3))
     num_accept = 0
     num_trials = 0
     count = 0  # for storing accepted conformations

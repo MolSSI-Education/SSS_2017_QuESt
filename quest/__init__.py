@@ -15,7 +15,7 @@ from . import mc_module
 from .mollib import mollib
 from .molecule import Molecule
 from .wavefunction import Wavefunction
-
+from .mc_module import rdf_func
 
 # Make sure Psi4 respects the global OMP_NUM_THREADS
 import psi4

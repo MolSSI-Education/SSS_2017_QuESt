@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import numpy as np
-import quest
+#import quest
+import quest.core.system_energy as system_energy
 import pytest
 
 # Setup parameters
@@ -30,7 +31,7 @@ num_particles = np.shape(coordinates)[0]
 #@pytest.mark.skip(reason="Needs fixing")
 def test_sys_ene():
     random_coordinates = (0.5 - np.random.rand(800,3)) * box_length
-    energy = quest.core.system_energy(random_coordinates[:, 0], random_coordinates[:, 1], random_coordinates[:, 2], 10.0, 9.0)
+    energy = system_energy(random_coordinates[:, 0], random_coordinates[:, 1], random_coordinates[:, 2], 10.0, 9.0)
     assert np.round(energy) == np.round(-4351.540194543863)
 
 

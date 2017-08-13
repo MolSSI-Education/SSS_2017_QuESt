@@ -3,7 +3,7 @@ This module will take in the sigma and epsilon parameters and will do a Monte Ca
 """
 
 import numpy as np
-from . import core
+from core import core
 
 
 def tail_correction(box_length, cutoff, num_particles):
@@ -62,13 +62,13 @@ def minimum_image_distance(r_i, r_j, box_length):
     return rij2
 
 
-def tail_correction(box_length):
-    volume = box_length**3
-    sig_by_cutoff3 = (1 / cutoff)**3
-    sig_by_cutoff9 = sig_by_cutoff3**3
-    e_correction = sig_by_cutoff9 - 3.0 * sig_by_cutoff3
-    e_correction *= 8.0 / 9.0 * np.pi * num_particles**2 / volume
-    return e_correction
+#def tail_correction(box_length):
+#    volume = box_length**3
+#    sig_by_cutoff3 = (1 / cutoff)**3
+#    sig_by_cutoff9 = sig_by_cutoff3**3
+#    e_correction = sig_by_cutoff9 - 3.0 * sig_by_cutoff3
+#    e_correction *= 8.0 / 9.0 * np.pi * num_particles**2 / volume
+#    return e_correction
 
 def monte_carlo(epsilon,
                 box_length,
@@ -105,11 +105,13 @@ def monte_carlo(epsilon,
 
     coordinates_NIST = np.loadtxt("lj_sample_config_periodic1.txt", skiprows=2, usecols=(1, 2, 3))
     num_particles = len(coordinates_NIST)
-    coordinates_of_simulation = np.zeros((num_particles, 3))
+#    coordinates_of_simulation = np.zeros((num_particles, 3))
     num_accept = 0
     num_trials = 0
     count = 0  # for storing accepted conformations
-
+    cutoff2 = np.power(cutoff,2)
+    tail_corr = tail_correction(box_length, cutoff, num_particles)
+    total_pair_energy = core.system_energy(coordinates_NIST[:,0], coordinates_NIST[:,1], coordinates_NIST[:,2], box_length, cutoff2, epsilon)
     for i_step in range(num_steps):
         num_trials += 1
         i_particle = np.random.randint(num_particles)
@@ -126,14 +128,14 @@ def monte_carlo(epsilon,
 
         if delta_energy < 0.0:
             accept = True
-            coordinates_of_simulation[count] = coordinates_NIST[i_particle]
+ #           coordinates_of_simulation[count] = coordinates_NIST[i_particle]
             count += 1
         else:
             random_number = np.random.rand(1)
             p_acc = np.exp(-beta * delta_energy)
             if random_number < p_acc:
                 accept = True
-                coordinates_of_simulation[count] = coordinates_NIST[i_particle]
+#                coordinates_of_simulation[count] = coordinates_NIST[i_particle]
                 count += 1
             else:
                 accept = False
@@ -148,11 +150,12 @@ def monte_carlo(epsilon,
             acc_rate = float(num_accept) / float(num_steps)
             num_accept = 0
             num_trials = 0
-            if acc_rate < tolerance_acce_rate[0]:
-                max_displacement *= max_displacement_scaling[0]
-            elif acc_rate > tolerance_acce_rate[1]:
-                max_displacement *= max_displacement_scaling[1]
-        total_energy = (total_pair_energy + tail_correction) / num_particles
-        energy_array[i_step] = total_energy
-        print(total_energy * num_particles)
+            if acc_rate < 0.38:
+                max_displacement *= 0.8
+            elif acc_rate > 0.42:
+                max_displacement *= 1.2
+        total_energy = (total_pair_energy + tail_corr) / num_particles
+#        energy_array[i_step] = total_energy
+        print(energy_array)
         return total_energy
+#        return coordinates_of_simulation

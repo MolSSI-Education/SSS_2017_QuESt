@@ -3,7 +3,9 @@ This module will take in the sigma and epsilon parameters and will do a Monte Ca
 """
 
 import numpy as np
+import sys
 from core import core
+#from . import core
 
 
 def tail_correction(box_length, cutoff, num_particles):
@@ -73,9 +75,7 @@ def minimum_image_distance(r_i, r_j, box_length):
 def monte_carlo(epsilon,
                 box_length,
                 cutoff,
-                num_steps,
-                tolerance_acce_rate=[0.38, 0.42],
-                max_displacement_scaling=[0.8, 1.2]):
+                num_steps):
     """
     Runs MC simulation using the MCMC algorithm.
     Conformations are chosen from a probability density based on the Metropolis Hastings criteria
@@ -102,27 +102,37 @@ def monte_carlo(epsilon,
         total energy and array of accepted coordinates.
 
 #    """
-
+    reduced_density = 0.9
+    reduced_temperature = 0.9
+    temperature = reduced_temperature * epsilon
+    beta = 1 / temperature
     coordinates_NIST = np.loadtxt("lj_sample_config_periodic1.txt", skiprows=2, usecols=(1, 2, 3))
     num_particles = len(coordinates_NIST)
 #    coordinates_of_simulation = np.zeros((num_particles, 3))
     num_accept = 0
     num_trials = 0
+    max_displacement = 0.1
     count = 0  # for storing accepted conformations
     cutoff2 = np.power(cutoff,2)
+    energy_array = np.zeros(num_steps)
     tail_corr = tail_correction(box_length, cutoff, num_particles)
     total_pair_energy = core.system_energy(coordinates_NIST[:,0], coordinates_NIST[:,1], coordinates_NIST[:,2], box_length, cutoff2, epsilon)
     for i_step in range(num_steps):
         num_trials += 1
         i_particle = np.random.randint(num_particles)
         old_position = coordinates_NIST[i_particle].copy()
+        #print("before first core")
         old_energy = core.pair_energy(i_particle, coordinates_NIST[:, 0], coordinates_NIST[:, 1], coordinates_NIST[:, 2],
-                                    box_length, cutoff2)
+                                    box_length, cutoff2, epsilon)
+        #old_energy = 10.0
+        #print("after first core")
         #get_molecule_energy(i_particle, coordinates_NIST, box_length)
         random_displacement = (np.random.rand(3) - 0.5) * 2 * max_displacement
         coordinates_NIST[i_particle] += random_displacement
+        #print("before second core")
         new_energy = core.pair_energy(i_particle, coordinates_NIST[:, 0], coordinates_NIST[:, 1], coordinates_NIST[:, 2],
                                     box_length, cutoff, epsilon)
+        #print("after second core")
         #get_molecule_energy(i_particle, coordinates_NIST, box_length)
         delta_energy = new_energy - old_energy
 
@@ -145,7 +155,7 @@ def monte_carlo(epsilon,
             total_pair_energy += delta_energy
         else:
             coordinates_NIST[i_particle] -= random_displacement
-
+#        print("before final if")
         if np.mod(i_step + 1, 1000) == 0:
             acc_rate = float(num_accept) / float(num_steps)
             num_accept = 0
@@ -155,7 +165,10 @@ def monte_carlo(epsilon,
             elif acc_rate > 0.42:
                 max_displacement *= 1.2
         total_energy = (total_pair_energy + tail_corr) / num_particles
-#        energy_array[i_step] = total_energy
-        print(energy_array)
-        return total_energy
+        energy_array[i_step] = total_energy
+        #print("end of for")
+#        print(total_energy * num_particles)
+    print(energy_array)
+    return energy_array 
 #        return coordinates_of_simulation
+

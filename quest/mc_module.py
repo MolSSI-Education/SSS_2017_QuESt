@@ -108,7 +108,7 @@ def monte_carlo(epsilon,
     beta = 1 / temperature
     coordinates_NIST = np.loadtxt("lj_sample_config_periodic1.txt", skiprows=2, usecols=(1, 2, 3))
     num_particles = len(coordinates_NIST)
-#    coordinates_of_simulation = np.zeros((num_particles, 3))
+    coordinates_of_simulation = np.zeros((num_particles, 3))
     num_accept = 0
     num_trials = 0
     max_displacement = 0.1
@@ -124,7 +124,6 @@ def monte_carlo(epsilon,
         #print("before first core")
         old_energy = core.pair_energy(i_particle, coordinates_NIST[:, 0], coordinates_NIST[:, 1], coordinates_NIST[:, 2],
                                     box_length, cutoff2, epsilon)
-        #old_energy = 10.0
         #print("after first core")
         #get_molecule_energy(i_particle, coordinates_NIST, box_length)
         random_displacement = (np.random.rand(3) - 0.5) * 2 * max_displacement
@@ -138,16 +137,19 @@ def monte_carlo(epsilon,
 
         if delta_energy < 0.0:
             accept = True
- #           coordinates_of_simulation[count] = coordinates_NIST[i_particle]
+            print("acccepted because good")
+            coordinates_of_simulation[count] = coordinates_NIST[i_particle]
             count += 1
         else:
             random_number = np.random.rand(1)
             p_acc = np.exp(-beta * delta_energy)
             if random_number < p_acc:
                 accept = True
-#                coordinates_of_simulation[count] = coordinates_NIST[i_particle]
+                print("accepted because coin flip")
+                coordinates_of_simulation[count] = coordinates_NIST[i_particle]
                 count += 1
             else:
+                print("not accepted")
                 accept = False
 
         if accept:
@@ -156,6 +158,8 @@ def monte_carlo(epsilon,
         else:
             coordinates_NIST[i_particle] -= random_displacement
 #        print("before final if")
+        #checks acceptance rate if it is good after a certain \
+        #number of steps
         if np.mod(i_step + 1, 1000) == 0:
             acc_rate = float(num_accept) / float(num_steps)
             num_accept = 0
@@ -166,9 +170,8 @@ def monte_carlo(epsilon,
                 max_displacement *= 1.2
         total_energy = (total_pair_energy + tail_corr) / num_particles
         energy_array[i_step] = total_energy
-        #print("end of for")
-#        print(total_energy * num_particles)
-    print(energy_array)
-    return energy_array 
-#        return coordinates_of_simulation
+        #print("total energy:")
+        #print(total_energy * num_particles)
+#    print(energy_array)
+    return energy_array, coordinates_of_simulation
 

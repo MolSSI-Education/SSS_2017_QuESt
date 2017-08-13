@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import numpy as np
-#import quest
-import quest.core.system_energy as system_energy
+import quest
+#from quest.core import system_energy
+#from quest.core import pair_energy
 import pytest
 
 # Setup parameters
@@ -25,17 +26,17 @@ for i_bin in range(0, bins):
 
 number_of_snapshots = 1
 
-#coordinates = np.loadtxt(quest.lj_sample_config, skiprows=2, usecols=(1, 2, 3))
+coordinates = np.loadtxt(quest.lj_sample_config, skiprows=2, usecols=(1, 2, 3))
 num_particles = np.shape(coordinates)[0]
 
-#@pytest.mark.skip(reason="Needs fixing")
+@pytest.mark.skip(reason="Needs fixing")
 def test_sys_ene():
     random_coordinates = (0.5 - np.random.rand(800,3)) * box_length
-    energy = system_energy(random_coordinates[:, 0], random_coordinates[:, 1], random_coordinates[:, 2], 10.0, 9.0)
+    energy = quest.core.system_energy(random_coordinates[:, 0], random_coordinates[:, 1], random_coordinates[:, 2], 10.0, 9.0)
     assert np.round(energy) == np.round(-4351.540194543863)
 
 
-#@pytest.mark.skip(reason="Needs fixing")
+@pytest.mark.skip(reason="Needs fixing")
 def test_pair_ene():
     tot = 0.0
     random_coordinates = (0.5 - np.random.rand(800,3)) * box_length

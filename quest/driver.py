@@ -8,7 +8,7 @@ from . import molecule
 from . import wavefunction
 from . import lj
 from .response import response
-
+from . import mc_module
 
 def compute_lj_params(mol_str, basis_name):
     mol = molecule.Molecule(mol_str, basis_name)
@@ -43,5 +43,5 @@ def compute_rhf(mol, basis_name="aug-cc-pvdz", numpy_memory=1.e9, maxiter=12,
     return (scf_energy, wfn)
 
 
-def compute_mc(sigma, epsilon, coord_file_path, params):
-    pass
+def compute_mc(sigma, box_length, cutoff, num_steps):
+    return mc.monte_carlo(sigma, box_length, cutoff, num_steps)

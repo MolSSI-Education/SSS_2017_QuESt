@@ -3,7 +3,9 @@ This module will take in the sigma and epsilon parameters and will do a Monte Ca
 """
 
 import numpy as np
-from . import core
+import sys
+from core import core
+#from . import core
 
 
 def tail_correction(box_length, cutoff, num_particles):
@@ -96,10 +98,7 @@ def rdf_func(coordinates_NIST, bins, box_length, reduced_density, number_of_snap
 def monte_carlo(epsilon,
                 box_length,
                 cutoff,
-                num_steps,
-                reduced_temp,
-                tolerance_acce_rate=[0.38, 0.42],
-                max_displacement_scaling=[0.8, 1.2]): 
+                num_steps):
     """
     Runs MC simulation using the MCMC algorithm.
     Conformations are chosen from a probability density based on the Metropolis Hastings criteria
@@ -128,42 +127,46 @@ def monte_carlo(epsilon,
         total energy and array of accepted coordinates.
 
 #    """
-
+    reduced_density = 0.9
+    reduced_temperature = 0.9
+    temperature = reduced_temperature * epsilon
+    beta = 1. / temperature
     coordinates_NIST = np.loadtxt("lj_sample_config_periodic1.txt", skiprows=2, usecols=(1, 2, 3))
     num_particles = len(coordinates_NIST)
-    coordinates_of_simulation = np.zeros(num_steps*num_particles, 3)  #where simulation coordinates will be stored.
+    coordinates_of_simulation = np.zeros((num_steps*num_particles, 3)) #where simulation coordinates will be stored.
+    num_accept = 0
+    num_trials = 0
+    max_displacement = 0.1
+    count = 0  # for storing accepted conformations
     cutoff2 = np.power(cutoff,2)
-    max_displacement = 1.0
-    beta = 1./reduced_temp
     energy_array = np.zeros(num_steps)
- #   count = 0  # for storing accepted conformations
     num_accept = 0
     num_trials = 0
     total_pair_energy = core.system_energy(coordinates_NIST[:,0], coordinates_NIST[:,1], coordinates_NIST[:,2], box_length, cutoff2, epsilon)
-    tail_energy = tail_correction(box_length, cutoff, num_particles) ## total_pair_energy and tail_correction added by dibyendu
+    tail_corr = tail_correction(box_length, cutoff, num_particles) ## total_pair_energy and tail_correction added by dibyendu
 
-    for i_step in range(num_steps): 
+    for i_step in range(num_steps):
+        num_trials += 1
         i_particle = np.random.randint(num_particles)
         old_position = coordinates_NIST[i_particle].copy()
-        old_energy = core.pair_energy(i_particle, coordinates_NIST[:, 0], coordinates_NIST[:, 1], coordinates_NIST[:, 2], 
-                                       box_length, cutoff2, epsilon)
+        old_energy = core.pair_energy(i_particle, coordinates_NIST[:, 0], coordinates_NIST[:, 1], coordinates_NIST[:, 2],
+                                    box_length, cutoff2, epsilon)
         random_displacement = (np.random.rand(3) - 0.5) * 2 * max_displacement
         coordinates_NIST[i_particle] += random_displacement
         new_energy = core.pair_energy(i_particle, coordinates_NIST[:, 0], coordinates_NIST[:, 1], coordinates_NIST[:, 2],
                                     box_length, cutoff2, epsilon)
         delta_energy = new_energy - old_energy
-        num_trials += 1
         if delta_energy < 0.0:
             accept = True
-#            coordinates_of_simulation[count] = coordinates_NIST[i_particle]
-#            count += 1
+            coordinates_of_simulation[count] = coordinates_NIST[i_particle]
+            count += 1
         else:
             random_number = np.random.rand(1)
             p_acc = np.exp(-beta * delta_energy)
             if random_number < p_acc:
                 accept = True
- #               coordinates_of_simulation[count] = coordinates_NIST[i_particle]
- #               count += 1
+                coordinates_of_simulation[count] = coordinates_NIST[i_particle]
+                count += 1
             else:
                 accept = False
 
@@ -174,15 +177,17 @@ def monte_carlo(epsilon,
         else:
             coordinates_NIST[i_particle] -= random_displacement
 
-        if np.mod(i_step, 1000) == 0:
-            acc_rate = float(num_accept) / float(num_trials)
+        if np.mod(i_step + 1, 1000) == 0:
+            acc_rate = float(num_accept) / float(num_steps)
             num_accept = 0
             num_trials = 0
-            if acc_rate < tolerance_acce_rate[0]:
-                max_displacement *= max_displacement_scaling[0]
-            elif acc_rate > tolerance_acce_rate[1]:
-                max_displacement *= max_displacement_scaling[1]
-        total_energy = (total_pair_energy + tail_energy) / num_particles
+            if acc_rate < 0.38:
+                max_displacement *= 0.8
+            elif acc_rate > 0.42:
+                max_displacement *= 1.2
+        total_energy = (total_pair_energy + tail_corr) / num_particles
         energy_array[i_step] = total_energy
-        
+        #print("total energy:")
+        #print(total_energy * num_particles)
+    #print(energy_array)
     return (energy_array, coordinates_of_simulation) ## coordinates_of_simulation added by dibyendu

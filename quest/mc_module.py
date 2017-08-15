@@ -4,8 +4,7 @@ This module will take in the sigma and epsilon parameters and will do a Monte Ca
 
 import numpy as np
 import sys
-from core import core
-#from . import core
+from . import core
 
 
 def tail_correction(box_length, cutoff, num_particles):

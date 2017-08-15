@@ -40,6 +40,8 @@ def build_JK(mints, jk_type, auxiliary=None):
 
     if jk_type == "PK":
         return PKJK(mints)
+    if jk_type == "DF":
+        return DFJK(mints)
     else:
         raise KeyError("build_JK: Unknown JK type '%s'" % jk_type)
 
@@ -91,7 +93,7 @@ class DFJK(object):
 
     """
 
-    def __init__(self, mints, bas, mol, basname):
+    def __init__(self, mints):
         """
         Initialized the JK object from a MintsHelper object and prepare the 
         auxiliary integrals:
@@ -105,22 +107,26 @@ class DFJK(object):
         
         """
         self.nbf = mints.nbf()
-        self.I = np.asarray(mints.ao_eri())
+
         # Build the complementary JKFIT basis for the aug-cc-pVDZ basis (for example)
-        aux = psi4.core.BasisSet.build(mol, fitrole="JKFIT", other="aug-cc-pVDZ")
+        bas = mints.basisset() 
+        mol = bas.molecule()
+        aux = psi4.core.BasisSet.build(mol, fitrole="JKFIT", other=bas.name())
+
         # The zero basis set
         zero_bas = psi4.core.BasisSet.zero_ao_basis_set()
-        # Build instance of MintsHelper
-        mints = psi4.core.MintsHelper(bas)
+
         # Build (P|pq) raw 3-index ERIs, dimension (1, Naux, nbf, nbf)
         Qls_tilde = mints.ao_eri(zero_bas, aux, bas, bas)
         Qls_tilde = np.squeeze(Qls_tilde) # remove the 1-dimensions
+
         # Build & invert Coulomb metric, dimension (1, Naux, 1, Naux)
         metric = mints.ao_eri(zero_bas, aux, zero_bas, aux)
         metric.power(-0.5, 1.e-14)
         metric = np.squeeze(metric) # remove the 1-dimensions
+
         Pls = np.einsum('pq,qls->pls', metric, Qls_tilde)
-        self.__Ig = Pls
+        self.Ipq = Pls
 
     def compute_JK(self, C_left, C_right=None):
         """
@@ -134,6 +140,6 @@ class DFJK(object):
 
         J = np.zeros((self.nbf, self.nbf))
         K = np.zeros((self.nbf, self.nbf))
-        core.compute_DFJK(self.__Ig, D, J, K)
+        core.compute_DFJK(self.Ipq, D, J, K)
 
         return J, K

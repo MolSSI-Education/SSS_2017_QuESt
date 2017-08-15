@@ -26,7 +26,7 @@ PYBIND11_PLUGIN(core) {
     py::module m("core", "pybind11 QuESt 'core' plugin");
 
     m.def("compute_PKJK", &compute_PKJK, "A function that can compute the PK J and K matrices.");
-    m.def("compute_DFJK", &compute_PKJK, "A function that can compute the J and K matrices using density-fitting.");
+    m.def("compute_DFJK", &compute_DFJK, "A function that can compute the J and K matrices using density-fitting.");
     m.def("system_energy", &system_energy, "A function that calculates the total energies");
     m.def("pair_energy", &pair_energy, "Calculates a single atom's interaction with all molecules");
     m.def("rdf", &rdf, "Calculates the RDF for a given system");

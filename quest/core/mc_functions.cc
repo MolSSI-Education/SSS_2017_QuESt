@@ -100,7 +100,7 @@ double pair_energy(int par_num, py::array_t<double> x_coords, py::array_t<double
             if (rij2 < cutoff2) {
                 double sig_by_r6 = pow((1 / rij2), 3);
                 double sig_by_r12 = pow(sig_by_r6, 2);
-                double lj_pot = 4.0 * (sig_by_r12 - sig_by_r6);
+                double lj_pot = 4.0 * (sig_by_r12 - sig_by_r6)*epsilon;
                 e_pair += lj_pot;
             }
         }
